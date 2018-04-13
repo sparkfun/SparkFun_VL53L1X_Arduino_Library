@@ -1,0 +1,31 @@
+#######################################
+# Syntax Coloring Map 
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+VL53L1X	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin					KEYWORD2
+
+softReset		 KEYWORD2
+startMeasurement		 KEYWORD2
+newDataReady		 KEYWORD2
+getDistance		 KEYWORD2
+getSignalRate		 KEYWORD2
+getRangeStatus		 KEYWORD2
+
+readRegister		 KEYWORD2
+readRegister16		 KEYWORD2
+writeRegister		 KEYWORD2
+writeRegister16		 KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
