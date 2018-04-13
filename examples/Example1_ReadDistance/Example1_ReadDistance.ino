@@ -5,7 +5,8 @@
   Date: April 4th, 2018
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
 
-  Feel like supporting our work? Buy a board from SparkFun! https://www.sparkfun.com/products/14667
+  SparkFun labored with love to create this code. Feel like supporting open source hardware? 
+  Buy a board from SparkFun! https://www.sparkfun.com/products/14667
 
   This example prints the distance to an object.
 
