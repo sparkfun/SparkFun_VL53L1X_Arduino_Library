@@ -11,6 +11,9 @@ We’re far from done: The VL53L1X is a highly complex sensor with a multitude o
 
 We’ve found the precision of the sensor to be 1mm but the accuracy is around +/-5mm.
 
+SparkFun labored with love to create this code. Feel like supporting open source hardware? 
+Buy a [breakout board](https://www.sparkfun.com/products/14667) from SparkFun!
+
 Library written by Nathan Seidle ([SparkFun](http://www.sparkfun.com)).
 
 Repository Contents
