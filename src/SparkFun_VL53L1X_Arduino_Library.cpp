@@ -118,7 +118,7 @@ void VL53L1X::startMeasurement(uint8_t offset)
     _i2cPort->write(0); //We're only in lower address space. No MSB needed.
     _i2cPort->write(address);
 
-    for (byte x = 0 ; x < leftToSend ; x++)
+    for (byte x = 0 ; x < toSend ; x++)
       _i2cPort->write(pgm_read_byte_near(configBlock + address + x - 1 - offset));
 
     _i2cPort->endTransmission();
