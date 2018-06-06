@@ -190,6 +190,7 @@ uint16_t VL53L1X::getSignalRate()
 
 
 //Adapted from ST API
+//0 is short range, 1 is mid range, 2 is long range.
 void VL53L1X::setDistanceMode(uint8_t mode)
 {
 	uint8_t periodA;

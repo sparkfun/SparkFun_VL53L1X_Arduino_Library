@@ -89,7 +89,7 @@ class VL53L1X {
     boolean newDataReady(); //Polls the measurement completion bit
     uint16_t getDistance(); //Returns the results from the last measurement, distance in mm
     uint16_t getSignalRate(); //Returns the results from the last measurement, signal rate
-	void setDistanceMode(uint8_t mode = 2);
+	void setDistanceMode(uint8_t mode = 2);//Defaults to long range
 	uint8_t getDistanceMode();
     uint8_t getRangeStatus(); //Returns the results from the last measurement, 0 = valid
 
