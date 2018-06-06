@@ -188,6 +188,62 @@ uint16_t VL53L1X::getSignalRate()
   return (reading);
 }
 
+
+//Adapted from ST API
+//0 is short range, 1 is mid range, 2 is long range.
+void VL53L1X::setDistanceMode(uint8_t mode)
+{
+	uint8_t periodA;
+	uint8_t periodB;
+	uint8_t phaseHigh;
+	uint8_t phaseInit;
+	switch (mode)
+	{
+		case 0:
+		  periodA = 0x07;
+		  periodB = 0x05;
+		  phaseHigh = 0x38;
+		  phaseInit = 6;
+		  break;
+		case 1:
+		  periodA = 0x0B;
+		  periodB = 0x09;
+	  	  phaseHigh = 0x78;
+	  	  phaseInit = 10;
+		  break;
+		case 2:
+		  periodA = 0x0F;
+		  periodB = 0x0D;
+		  phaseHigh = 0xB8;
+		  phaseInit = 14;
+		  break;
+		//If user inputs wrong range, we default to long range
+		default:
+		  periodA = 0x0F;
+		  periodB = 0x0D;
+		  phaseHigh = 0xB8;
+		  phaseInit = 14;
+		  break;
+	}
+	//timing
+	writeRegister(VL53L1_RANGE_CONFIG__VCSEL_PERIOD_A, periodA);
+	writeRegister(VL53L1_RANGE_CONFIG__VCSEL_PERIOD_B , periodB);
+	writeRegister(VL53L1_RANGE_CONFIG__VALID_PHASE_HIGH, phaseHigh);
+	
+	//dynamic
+	writeRegister(VL53L1_SD_CONFIG__WOI_SD0 , periodA);
+	writeRegister(VL53L1_SD_CONFIG__WOI_SD1, periodB);
+	writeRegister(VL53L1_SD_CONFIG__INITIAL_PHASE_SD0, phaseInit);
+	writeRegister(VL53L1_SD_CONFIG__INITIAL_PHASE_SD1, phaseInit);
+	
+	_distanceMode = mode;
+}
+
+uint8_t VL53L1X::getDistanceMode()
+{
+	return _distanceMode;
+}
+
 //The sensor returns a range status that needs to be re-mapped to one of 9 different statuses
 //This does that.
 uint8_t VL53L1X::getRangeStatus()

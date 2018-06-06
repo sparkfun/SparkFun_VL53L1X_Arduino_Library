@@ -20,6 +20,8 @@ newDataReady		 KEYWORD2
 getDistance		 KEYWORD2
 getSignalRate		 KEYWORD2
 getRangeStatus		 KEYWORD2
+setDistanceMode		 KEYWORD2
+getDistanceMode		 KEYWORD2
 
 readRegister		 KEYWORD2
 readRegister16		 KEYWORD2
