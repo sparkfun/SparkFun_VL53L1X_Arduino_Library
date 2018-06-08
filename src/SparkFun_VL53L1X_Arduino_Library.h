@@ -102,6 +102,7 @@ class VL53L1X {
 
     //Variables
     TwoWire *_i2cPort; //The generic connection to user's chosen I2C hardware
+	uint8_t _deviceAddress;
     uint8_t _distanceMode = 0;
 };
 
