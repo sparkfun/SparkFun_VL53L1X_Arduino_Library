@@ -1,9 +1,9 @@
-SparkFun VL53L1X Distance Sensor Library
-===========================================================
+SparkFun Qwiic 4m Distance Sensor with VL53L1X
+========================================
 
-![SparkFun VL53L1X Distance Sensor](https://cdn.sparkfun.com//assets/parts/1/2/8/6/3/14667-ToF_Laser_Distance_Sensor__Qwiic__-_VL53L1X-01.jpg)
+![SparkFun Distance Sensor Breakout - 4 Meter, VL53L1X (Qwiic)](https://cdn.sparkfun.com/assets/parts/1/2/9/4/8/14722-SparkFun_Distance_Sensor_Breakout_-_4_Meter__VL53L1X__Qwiic_-01.jpg)
 
-[*SparkX Qwiic Distance Sensor - VL532L1X (SPX-14667)*](https://www.sparkfun.com/products/14667)
+[*SparkFun Distance Sensor Breakout - 4 Meter, VL53L1X (Qwiic)(SEN-14722)*](https://www.sparkfun.com/products/14722)
 
 The VL53L1X is the latest Time Of Flight (ToF) sensor to be released. It uses a VCSEL (vertical cavity surface emitting laser) to emit a class 1 IR laser and time the reflection to the target. What does all this mean? You can measure the distance to an object up to 4 meters away with millimeter resolution! That’s pretty incredible.
 
@@ -12,32 +12,34 @@ We’re far from done: The VL53L1X is a highly complex sensor with a multitude o
 We’ve found the precision of the sensor to be 1mm but the accuracy is around +/-5mm.
 
 SparkFun labored with love to create this code. Feel like supporting open source hardware? 
-Buy a [breakout board](https://www.sparkfun.com/products/14667) from SparkFun!
-
-Library written by Nathan Seidle ([SparkFun](http://www.sparkfun.com)).
+Buy a [breakout board](https://www.sparkfun.com/products/14722) from SparkFun!
 
 Repository Contents
 -------------------
 
-* **/examples** - Example sketches for the library (.ino). Run these from the Arduino IDE. 
-* **/src** - Source files for the library (.cpp, .h).
-* **keywords.txt** - Keywords from this library that will be highlighted in the Arduino IDE. 
-* **library.properties** - General library properties for the Arduino package manager. 
+* **/Documents** - Datasheet and User Manual
+* **/Hardware** - Eagle design files (.brd, .sch)
+* **/Production** - .brd files
 
 Documentation
 --------------
+* **[Hookup Guide](https://learn.sparkfun.com/tutorials/qwiic-distance-sensor-vl53l1x-hookup-guide)**
 
-* **[Installing an Arduino Library Guide](https://learn.sparkfun.com/tutorials/installing-an-arduino-library)** - Basic information on how to install an Arduino library.
-* **[Product Repository](https://github.com/sparkfunX/Qwiic_Distance_VL53L1X)** - Main repository (including hardware files)
+Product Versions
+--------------
+* **[SEN-14722](https://www.sparkfun.com/products/14722)** - SparkFun red version
+* **[SPX-14667](https://www.sparkfun.com/products/14667)** - SparkX Version 
 
 License Information
 -------------------
 
 This product is _**open source**_! 
 
-Various bits of the code have different licenses applied. Anything SparkFun wrote is beerware; if you see me (or any other SparkFun employee) at the local, and you've found our code helpful, please buy us a round!
+Please review the LICENSE.md file for license information. 
 
-Please use, reuse, and modify these files as you see fit. Please maintain attribution to SparkFun Electronics and release anything derivative under the same license.
+If you have any questions or concerns on licensing, please contact techsupport@sparkfun.com.
+
+Please use, reuse, and modify these files as you see fit. Please maintain attribution to SparkFun Electronics and release any derivative under the same license.
 
 Distributed as-is; no warranty is given.
 
