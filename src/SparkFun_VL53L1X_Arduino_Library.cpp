@@ -44,7 +44,7 @@
 //device against this set of bytes and write only the ones that are different but it's faster,
 //easier, and perhaps fewer code words to write the config block as is.
 //The block was obtained via inspection of the ST P-NUCLEO-53L1A1
-const PROGMEM uint8_t configBlock[] = {
+uint8_t configBlock[] = {
   0x29, 0x02, 0x10, 0x00, 0x28, 0xBC, 0x7A, 0x81, //8
   0x80, 0x07, 0x95, 0x00, 0xED, 0xFF, 0xF7, 0xFD, //16
   0x9E, 0x0E, 0x00, 0x10, 0x01, 0x00, 0x00, 0x00, //24
@@ -95,6 +95,13 @@ boolean VL53L1X::begin(uint8_t deviceAddress, TwoWire &wirePort)
   result = (result & 0xFE) | 0x01;
   writeRegister16(VL53L1_PAD_I2C_HV__EXTSUP_CONFIG, result);
 
+  //Gets trim resistors from chip
+  for (uint16_t i = 0; i < 36; i++) {
+	  uint8_t regVal = readRegister(i + 1);
+	  configBlock[i] = regVal;
+  }
+  startMeasurement();
+
   return (true); //Sensor online!
 }
 
@@ -106,7 +113,6 @@ boolean VL53L1X::begin(uint8_t deviceAddress, TwoWire &wirePort)
 void VL53L1X::startMeasurement(uint8_t offset)
 {
   uint8_t address = 1 + offset; //Start at memory location 0x01, add offset
-
   uint8_t leftToSend = sizeof(configBlock) - offset;
   while (leftToSend > 0)
   {
@@ -119,7 +125,7 @@ void VL53L1X::startMeasurement(uint8_t offset)
     _i2cPort->write(address);
 
     for (byte x = 0 ; x < toSend ; x++)
-      _i2cPort->write(pgm_read_byte_near(configBlock + address + x - 1 - offset));
+      _i2cPort->write(configBlock[address + x - 1 - offset]);
 
     _i2cPort->endTransmission();
 
@@ -389,4 +395,3 @@ boolean VL53L1X::writeRegister16(uint16_t addr, uint16_t val)
     return (0); //Error: Sensor did not ACK
   return (1); //All done!
 }
-

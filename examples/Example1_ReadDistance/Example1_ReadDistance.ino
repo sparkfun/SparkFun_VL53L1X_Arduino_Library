@@ -27,13 +27,10 @@ void setup(void)
 
   if (distanceSensor.begin() == false)
     Serial.println("Sensor offline!");
-
 }
 
 void loop(void)
 {
-  distanceSensor.startMeasurement(); //Write configuration bytes to initiate measurement
-
   //Poll for completion of measurement. Takes 40-50ms.
   while (distanceSensor.newDataReady() == false)
     delay(5);
