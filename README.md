@@ -1,7 +1,7 @@
 SparkFun Qwiic 4m Distance Sensor with VL53L1X
 ========================================
 
-![SparkFun Distance Sensor Breakout - 4 Meter, VL53L1X (Qwiic)](https://cdn.sparkfun.com/assets/parts/1/2/9/4/8/14722-SparkFun_Distance_Sensor_Breakout_-_4_Meter__VL53L1X__Qwiic_-01.jpg)
+![SparkFun Distance Sensor Breakout - 4 Meter, VL53L1X (Qwiic)](https://cdn.sparkfun.com//assets/parts/1/2/9/4/8/14722-SparkFun_Distance_Sensor_Breakout-_4_Meter__VL53L1X__Qwiic_-01.jpg)
 
 [*SparkFun Distance Sensor Breakout - 4 Meter, VL53L1X (Qwiic)(SEN-14722)*](https://www.sparkfun.com/products/14722)
 
