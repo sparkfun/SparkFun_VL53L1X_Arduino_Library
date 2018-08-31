@@ -250,6 +250,41 @@ uint8_t VL53L1X::getDistanceMode()
 	return _distanceMode;
 }
 
+//Set a custom zone from the array of sensors.  Minimum of 4x4, maximum of 16x16.
+void VL53L1X::setUserRoi(UserRoi *roi)
+{
+	uint8_t centerX = (roi->topLeftX + roi->bottomRightX + 1) / 2;
+	uint8_t centerY = (roi->topLeftY + roi->bottomRightY + 1) / 2;
+	uint8_t width = roi->bottomRightX - roi->topLeftX;
+	uint8_t height = roi->topLeftY - roi->bottomRightY;
+	
+	if (width < 3 || height < 3){
+		return;
+	}
+	else{
+		setCenter(centerX, centerY);
+		setZoneSize(width, height);
+	}
+}
+
+void VL53L1X::setCenter(uint8_t centerX, uint8_t centerY){
+	uint8_t centerValue;
+	
+	if (centerX > 7){
+		centerValue = 128 + (centerY << 3) + (15 - centerX);
+	} 
+	else {
+		centerValue = ((15 - centerY) << 3) + centerX;
+	}
+	
+	writeRegister(VL53L1_ROI_CONFIG__USER_ROI_CENTRE_SPAD , centerValue);
+}
+
+void VL53L1X::setZoneSize(uint8_t width, uint8_t height){
+	uint8_t dimensions = (height << 4) + width;
+	writeRegister(VL53L1_ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE, dimensions);
+}
+
 //The sensor returns a range status that needs to be re-mapped to one of 9 different statuses
 //This does that.
 uint8_t VL53L1X::getRangeStatus()

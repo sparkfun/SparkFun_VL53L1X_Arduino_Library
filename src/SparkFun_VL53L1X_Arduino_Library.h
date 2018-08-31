@@ -79,6 +79,14 @@ const byte defaultAddress_VL53L1X = 0x29; //The default I2C address for the VL53
 #endif
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+	// Struct to contain the parameters for custom user zones.  Each value must be in the range from 0 to 15.
+	typedef struct{
+		uint8_t topLeftX;
+		uint8_t topLeftY;
+		uint8_t bottomRightX;
+		uint8_t bottomRightY;
+	}UserRoi;
+
 class VL53L1X {
   public:
 
@@ -97,7 +105,11 @@ class VL53L1X {
     uint16_t readRegister16(uint16_t addr); //Read two bytes from a 16-bit address
     boolean writeRegister(uint16_t addr, uint8_t val); //Write a byte to a spot
     boolean writeRegister16(uint16_t addr, uint16_t val); //Write two bytes to a spot
-
+	
+	void setUserRoi(UserRoi*);  //Set custom sensor zones
+	void setCenter(uint8_t centerX, uint8_t centerY);  //Set the center of a custom zone
+	void setZoneSize(uint8_t width, uint8_t height);  //Set the size of a custom zone
+	
   private:
 
     //Variables
