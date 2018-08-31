@@ -251,6 +251,7 @@ uint8_t VL53L1X::getDistanceMode()
 }
 
 //Set a custom zone from the array of sensors.  Minimum of 4x4, maximum of 16x16.
+//Custom zone must be centered
 void VL53L1X::setUserRoi(UserRoi *roi)
 {
 	uint8_t centerX = (roi->topLeftX + roi->bottomRightX + 1) / 2;
@@ -258,8 +259,10 @@ void VL53L1X::setUserRoi(UserRoi *roi)
 	uint8_t width = roi->bottomRightX - roi->topLeftX;
 	uint8_t height = roi->topLeftY - roi->bottomRightY;
 	
-	if (width < 3 || height < 3){
-		return;
+	//Check boundary conditions, if incorrect set to default values.
+	if (width < 3 || width > 15 || height < 3 || height > 15){
+		setCenter((uint8_t)8, (uint8_t)8);
+		setZoneSize((uint8_t)15, (uint8_t)8);
 	}
 	else{
 		setCenter(centerX, centerY);
