@@ -109,6 +109,7 @@ class VL53L1X {
 	void setUserRoi(UserRoi*);  //Set custom sensor zones
 	void setCenter(uint8_t centerX, uint8_t centerY);  //Set the center of a custom zone
 	void setZoneSize(uint8_t width, uint8_t height);  //Set the size of a custom zone
+	UserRoi* getUserRoi();
 	
   private:
 
