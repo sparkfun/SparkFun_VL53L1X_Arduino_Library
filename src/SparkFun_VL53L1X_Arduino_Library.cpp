@@ -257,7 +257,7 @@ void VL53L1X::setUserRoi(UserRoi *roi)
 	uint8_t centerX = (roi->topLeftX + roi->bottomRightX + 1) / 2;
 	uint8_t centerY = (roi->topLeftY + roi->bottomRightY + 1) / 2;
 	uint8_t width = roi->bottomRightX - roi->topLeftX;
-	uint8_t height = roi->topLeftY - roi->bottomRightY;
+	uint8_t height = roi->bottomRightY - roi->topLeftY;
 	
 	//Check boundary conditions, if incorrect set to default values.
 	if (width < 3 || height < 3){
