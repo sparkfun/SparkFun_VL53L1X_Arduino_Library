@@ -79,6 +79,14 @@ const byte defaultAddress_VL53L1X = 0x29; //The default I2C address for the VL53
 #endif
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
+typedef struct{	
+ 		uint8_t topLeftX;	
+ 		uint8_t topLeftY;	
+ 		uint8_t bottomRightX;	
+ 		uint8_t bottomRightY;	
+ 	}UserRoi;
+	
 class VL53L1X {
   public:
 
@@ -96,6 +104,11 @@ class VL53L1X {
 	void setDistanceMode(uint8_t mode = 2);//Defaults to long range
 	uint8_t getDistanceMode();
     uint8_t getRangeStatus(); //Returns the results from the last measurement, 0 == valid
+	
+	void setUserRoi(UserRoi*);  //Set custom sensor zones	
+ 	void setCenter(uint8_t centerX, uint8_t centerY);  //Set the center of a custom zone	
+ 	void setZoneSize(uint8_t width, uint8_t height);  //Set the size of a custom zone	
+ 	UserRoi* getUserRoi();
 
 	void setupManualCalibration();
 
