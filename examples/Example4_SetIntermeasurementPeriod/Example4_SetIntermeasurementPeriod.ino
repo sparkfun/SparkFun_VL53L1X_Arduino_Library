@@ -27,7 +27,9 @@ void setup(void)
 
   if (distanceSensor.begin() == false)
     Serial.println("Sensor offline!");
-
+    
+  distanceSensor.setIntermeasurementPeriod(40);
+  Serial.println(distanceSensor.getIntermeasurementPeriod());
 }
 
 void loop(void)

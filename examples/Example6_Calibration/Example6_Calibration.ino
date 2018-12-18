@@ -18,6 +18,7 @@
 #include "SparkFun_VL53L1X_Arduino_Library.h"
 VL53L1X distanceSensor;
 
+uint8_t incoming;
 void setup(void)
 {
   Wire.begin();
@@ -30,17 +31,31 @@ void setup(void)
 
 }
 
+uint8_t OFFSET_MM = 140;
+
 void loop(void)
 {
   distanceSensor.startMeasurement(); //Write configuration bytes to initiate measurement
 
   //Poll for completion of measurement. Takes 40-50ms.
   while (distanceSensor.newDataReady() == false)
-    delay(5);
+  delay(5);
+    
+  while (incoming != 'c')
+  {
+    Serial.print("Calibrating, current offset is ");
+    Serial.print(distanceSensor.calibrateOffset(OFFSET_MM));
+    Serial.println(" mm");
+    if(Serial.available())
+    {
+      incoming = Serial.read();
+    }
+  };
+  Serial.print("Calibrated");
+ 
+  int distance = distanceSensor.getCalibratedDistance(); //Get the result of the measurement from the sensor
 
-  int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-
-  Serial.print("Distance(mm): ");
+  Serial.print("DistanceCal(mm): ");
   Serial.print(distance);
 
   float distanceInches = distance * 0.0393701;
