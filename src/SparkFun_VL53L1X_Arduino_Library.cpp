@@ -134,6 +134,22 @@ void VL53L1X::startMeasurement(uint8_t offset)
   }
 }
 
+void VL53L1X::setIntermeasurementPeriod (uint32_t intermeasurementPeriod)
+{
+	uint32_t resOscCalibrateVal = readRegister16(0xDE);
+	_intermeasurementPeriod = intermeasurementPeriod;
+	intermeasurementPeriod = intermeasurementPeriod * resOscCalibrateVal;
+	configBlock[0x6F] = intermeasurementPeriod >> 24;
+	configBlock[0x70] = intermeasurementPeriod >> (16 & 0xFF);
+	configBlock[0x6D] = intermeasurementPeriod >> (8 & 0xFF);
+	configBlock[0x6E] = intermeasurementPeriod >> 0xFF;
+}
+
+uint32_t VL53L1X::getIntermeasurementPeriod ()
+{
+	return _intermeasurementPeriod;
+}
+
 //Polls the measurement completion bit
 boolean VL53L1X::newDataReady()
 {
@@ -182,6 +198,11 @@ void VL53L1X::softReset()
 uint16_t VL53L1X::getDistance()
 {
   return (readRegister16(VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0));
+}
+
+uint16_t VL53L1X::getCalibratedDistance()
+{
+	return (getDistance() + _offset);
 }
 
 //Get signal rate
@@ -250,70 +271,70 @@ uint8_t VL53L1X::getDistanceMode()
 	return _distanceMode;
 }
 
-//Set a custom zone from the array of sensors.  Minimum of 4x4, maximum of 16x16.
-//lower left corner of the array is (0, 0) and upper right is (15, 15)
-void VL53L1X::setUserRoi(UserRoi *roi)
-{
-	uint8_t centerX = (roi->topLeftX + roi->bottomRightX + 1) / 2;
-	uint8_t centerY = (roi->topLeftY + roi->bottomRightY + 1) / 2;
-	uint8_t width = roi->bottomRightX - roi->topLeftX;
-	uint8_t height = roi->topLeftY - roi->bottomRightY;
-	
-	//Check boundary conditions, if incorrect set to default values.
-	if (width < 3 || height < 3){
-		setCenter((uint8_t)8, (uint8_t)8);
-		setZoneSize((uint8_t)15, (uint8_t)15);
-	}
-	else{
-		setCenter(centerX, centerY);
-		setZoneSize(width, height);
-	}
-}
-
-void VL53L1X::setCenter(uint8_t centerX, uint8_t centerY){
-	uint8_t centerValue;
-	
-	if (centerY > 7){
-		centerValue = 128 + (centerX << 3) + (15 - centerY);
-	} 
-	else {
-		centerValue = ((15 - centerX) << 3) + centerY;
-	}
-	
-	writeRegister(VL53L1_ROI_CONFIG__USER_ROI_CENTRE_SPAD , centerValue);
-}
-
-void VL53L1X::setZoneSize(uint8_t width, uint8_t height){
-	uint8_t dimensions = (height << 4)  + width;
-	writeRegister(VL53L1_ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE, dimensions);
-}
-
-UserRoi* VL53L1X::getUserRoi(){
-	UserRoi* roi = new UserRoi();
-	
-	uint8_t center = readRegister(VL53L1_ROI_CONFIG__USER_ROI_CENTRE_SPAD);
-	uint8_t row = 0;
-	uint8_t col = 0;
-	if (center > 127){
-		row = 8 + ((255-center) & 0x07);
-		col = (center - 128) >> 3;
-	} else {
-		row = center & 0x07;
-		col = (127 - center) >> 3;
-	}
-	
-	uint8_t dimensions = readRegister(VL53L1_ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE);
-	uint8_t height = dimensions >> 4;
-	uint8_t width = dimensions & 0x0F;
-
-	 
-	roi->topLeftX = (2 * col - width) >> 1;
-	roi->topLeftY = (2 * row - height) >> 1;
-	roi->bottomRightX = (2 * col + width) >> 1;
-	roi->bottomRightY = (2 * row + height) >> 1;
-	
-	return roi;
-}
+ //Set a custom zone from the array of sensors.  Minimum of 4x4, maximum of 16x16.	
+ //lower left corner of the array is (0, 0) and upper right is (15, 15)	
+ void VL53L1X::setUserRoi(UserRoi *roi)	
+ {	
+ 	uint8_t centerX = (roi->topLeftX + roi->bottomRightX + 1) / 2;	
+ 	uint8_t centerY = (roi->topLeftY + roi->bottomRightY + 1) / 2;	
+ 	uint8_t width = roi->bottomRightX - roi->topLeftX;	
+ 	uint8_t height = roi->topLeftY - roi->bottomRightY;	
+ 
+  	//Check boundary conditions, if incorrect set to default values.	
+ 	if (width < 3 || height < 3){	
+ 		setCenter((uint8_t)8, (uint8_t)8);	
+ 		setZoneSize((uint8_t)15, (uint8_t)15);	
+ 	}	
+ 	else{	
+ 		setCenter(centerX, centerY);	
+ 		setZoneSize(width, height);	
+ 	}	
+ }	
+ 
+  void VL53L1X::setCenter(uint8_t centerX, uint8_t centerY){	
+ 	uint8_t centerValue;	
+ 
+  	if (centerY > 7){	
+ 		centerValue = 128 + (centerX << 3) + (15 - centerY);	
+ 	} 	
+ 	else {	
+ 		centerValue = ((15 - centerX) << 3) + centerY;	
+ 	}	
+ 
+  	writeRegister(VL53L1_ROI_CONFIG__USER_ROI_CENTRE_SPAD , centerValue);	
+ }	
+ 
+  void VL53L1X::setZoneSize(uint8_t width, uint8_t height){	
+ 	uint8_t dimensions = (height << 4)  + width;	
+ 	writeRegister(VL53L1_ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE, dimensions);	
+ }	
+ 
+  UserRoi* VL53L1X::getUserRoi(){	
+ 	UserRoi* roi = new UserRoi();	
+ 
+  	uint8_t center = readRegister(VL53L1_ROI_CONFIG__USER_ROI_CENTRE_SPAD);	
+ 	uint8_t row = 0;	
+ 	uint8_t col = 0;	
+ 	if (center > 127){	
+ 		row = 8 + ((255-center) & 0x07);	
+ 		col = (center - 128) >> 3;	
+ 	} else {	
+ 		row = center & 0x07;	
+ 		col = (127 - center) >> 3;	
+ 	}	
+ 
+  	uint8_t dimensions = readRegister(VL53L1_ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE);	
+ 	uint8_t height = dimensions >> 4;	
+ 	uint8_t width = dimensions & 0x0F;	
+ 
+  
+  	roi->topLeftX = (2 * col - width) >> 1;	
+ 	roi->topLeftY = (2 * row - height) >> 1;	
+ 	roi->bottomRightX = (2 * col + width) >> 1;	
+ 	roi->bottomRightY = (2 * row + height) >> 1;	
+ 
+  	return roi;	
+ }	
 
 //The sensor returns a range status that needs to be re-mapped to one of 9 different statuses
 //This does that.
@@ -396,6 +417,24 @@ uint8_t VL53L1X::getRangeStatus()
   }
 
   return measurementStatus;
+}
+
+void VL53L1X::setupManualCalibration()
+{
+	uint8_t result;
+	result = readRegister(VL53L1_VHV_CONFIG__INIT) & 0x7F;
+	writeRegister(VL53L1_VHV_CONFIG__INIT, result);
+	result = (readRegister(VL53L1_VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND) & 0x03) + (3 << 2);
+	writeRegister(VL53L1_VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND, result);
+	writeRegister(VL53L1_PHASECAL_CONFIG__OVERRIDE, 1);
+	result = readRegister(VL53L1_PHASECAL_RESULT__VCSEL_START);
+	writeRegister(VL53L1_CAL_CONFIG__VCSEL_START, result);
+}
+
+uint16_t VL53L1X::calibrateOffset(uint16_t targetDistance)
+{
+	_offset = targetDistance - getDistance();
+	return _offset;
 }
 
 //Reads one byte from a given location

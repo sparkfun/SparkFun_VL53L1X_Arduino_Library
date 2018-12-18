@@ -41,6 +41,7 @@ void setup(void)
 void loop(void)
 {
   long startTime = millis();
+  distanceSensor.startMeasurement(); //Write configuration block of 135 bytes to setup a measurement
 
   //Poll for completion of measurement. Takes 40-50ms.
   while (distanceSensor.newDataReady() == false)

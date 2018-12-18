@@ -79,14 +79,14 @@ const byte defaultAddress_VL53L1X = 0x29; //The default I2C address for the VL53
 #endif
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-	// Struct to contain the parameters for custom user zones.  Each value must be in the range from 0 to 15.
-	typedef struct{
-		uint8_t topLeftX;
-		uint8_t topLeftY;
-		uint8_t bottomRightX;
-		uint8_t bottomRightY;
-	}UserRoi;
 
+typedef struct{	
+ 		uint8_t topLeftX;	
+ 		uint8_t topLeftY;	
+ 		uint8_t bottomRightX;	
+ 		uint8_t bottomRightY;	
+ 	}UserRoi;
+	
 class VL53L1X {
   public:
 
@@ -96,27 +96,35 @@ class VL53L1X {
     void startMeasurement(uint8_t offset = 0); //Write a block of bytes to the sensor to configure it to take a measurement
     boolean newDataReady(); //Polls the measurement completion bit
     uint16_t getDistance(); //Returns the results from the last measurement, distance in mm
+	uint16_t getCalibratedDistance();
+	uint16_t calibrateOffset(uint16_t targetDistance);
     uint16_t getSignalRate(); //Returns the results from the last measurement, signal rate
+	void setIntermeasurementPeriod(uint32_t intermeasurementPeriod);
+	uint32_t getIntermeasurementPeriod();
 	void setDistanceMode(uint8_t mode = 2);//Defaults to long range
 	uint8_t getDistanceMode();
-    uint8_t getRangeStatus(); //Returns the results from the last measurement, 0 = valid
+    uint8_t getRangeStatus(); //Returns the results from the last measurement, 0 == valid
+	
+	void setUserRoi(UserRoi*);  //Set custom sensor zones	
+ 	void setCenter(uint8_t centerX, uint8_t centerY);  //Set the center of a custom zone	
+ 	void setZoneSize(uint8_t width, uint8_t height);  //Set the size of a custom zone	
+ 	UserRoi* getUserRoi();
+
+	void setupManualCalibration();
 
     uint8_t readRegister(uint16_t addr); //Read a byte from a 16-bit address
     uint16_t readRegister16(uint16_t addr); //Read two bytes from a 16-bit address
     boolean writeRegister(uint16_t addr, uint8_t val); //Write a byte to a spot
     boolean writeRegister16(uint16_t addr, uint16_t val); //Write two bytes to a spot
-	
-	void setUserRoi(UserRoi*);  //Set custom sensor zones
-	void setCenter(uint8_t centerX, uint8_t centerY);  //Set the center of a custom zone
-	void setZoneSize(uint8_t width, uint8_t height);  //Set the size of a custom zone
-	UserRoi* getUserRoi();
-	
+
   private:
 
     //Variables
     TwoWire *_i2cPort; //The generic connection to user's chosen I2C hardware
 	uint8_t _deviceAddress;
     uint8_t _distanceMode = 0;
+	uint32_t _intermeasurementPeriod = 200;
+	int32_t _offset = 0;
 };
 
 #endif

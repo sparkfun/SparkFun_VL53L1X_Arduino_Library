@@ -34,11 +34,13 @@ void setup(void)
     Serial.println("Sensor offline!");
   }
   //Call setDistanceMode with 0, 1, or 2 to change the sensing range.
-  distanceSensor.setDistanceMode(longRange);
+  distanceSensor.setDistanceMode(shortRange);
 }
 
 void loop(void)
 {
+  distanceSensor.startMeasurement(); //Write configuration bytes to initiate measurement
+
   //Poll for completion of measurement. Takes 40-50ms.
   while (distanceSensor.newDataReady() == false)
     delay(5);

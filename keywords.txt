@@ -23,6 +23,14 @@ getRangeStatus		 KEYWORD2
 setDistanceMode		 KEYWORD2
 getDistanceMode		 KEYWORD2
 
+setIntermeasurementPeriod KEYWORD2
+getIntermeasurementPeriod KEYWORD2
+
+setUserRoi			 KEYWORD2
+setCenter			 KEYWORD2
+setZoneSize			 KEYWORD2
+getUserRoi			 KEYWORD2
+
 readRegister		 KEYWORD2
 readRegister16		 KEYWORD2
 writeRegister		 KEYWORD2
