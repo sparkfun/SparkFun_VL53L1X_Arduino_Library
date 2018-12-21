@@ -5,7 +5,7 @@
   Date: April 4th, 2018
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
 
-  SparkFun labored with love to create this code. Feel like supporting open source hardware? 
+  SparkFun labored with love to create this code. Feel like supporting open source hardware?
   Buy a board from SparkFun! https://www.sparkfun.com/products/14667
 
   This example prints the distance to an object.
@@ -14,9 +14,13 @@
 */
 
 #include <Wire.h>
+#include "SparkFun_VL53L1X.h"
 
-#include "SparkFun_VL53L1X_Arduino_Library.h"
-VL53L1X distanceSensor;
+//Optional interrupt and shutdown pins.
+#define SHUTDOWN_PIN 2
+#define INTERRUPT_PIN 3
+
+SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 void setup(void)
 {
@@ -25,20 +29,16 @@ void setup(void)
   Serial.begin(9600);
   Serial.println("VL53L1X Qwiic Test");
 
-  if (distanceSensor.begin() == false)
-    Serial.println("Sensor offline!");
+  if (distanceSensor.init() == false)
+    Serial.println("Sensor online!");
 
 }
 
 void loop(void)
 {
-  distanceSensor.startMeasurement(); //Write configuration bytes to initiate measurement
-
-  //Poll for completion of measurement. Takes 40-50ms.
-  while (distanceSensor.newDataReady() == false)
-    delay(5);
-
+  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.stopRanging();
 
   Serial.print("Distance(mm): ");
   Serial.print(distance);

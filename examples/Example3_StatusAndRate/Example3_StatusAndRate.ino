@@ -14,9 +14,13 @@
 */
 
 #include <Wire.h>
+#include "SparkFun_VL53L1X.h"
 
-#include "SparkFun_VL53L1X_Arduino_Library.h"
-VL53L1X distanceSensor;
+//Optional interrupt and shutdown pins.
+#define SHUTDOWN_PIN 2
+#define INTERRUPT_PIN 3
+
+SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 //Store distance readings to get rolling average
 #define HISTORY_SIZE 10
@@ -26,13 +30,12 @@ byte historySpot;
 void setup(void)
 {
   Wire.begin();
-  Wire.setClock(400000); //Increase I2C bus speed to 400kHz
 
   Serial.begin(9600);
   Serial.println("VL53L1X Qwiic Test");
 
-  if (distanceSensor.begin() == false)
-    Serial.println("Sensor offline!");
+  if (distanceSensor.init() == false)
+    Serial.println("Sensor online!");
 
   for (int x = 0 ; x < HISTORY_SIZE ; x++)
     history[x] = 0;
@@ -41,21 +44,15 @@ void setup(void)
 void loop(void)
 {
   long startTime = millis();
-  distanceSensor.startMeasurement(); //Write configuration block of 135 bytes to setup a measurement
-
-  //Poll for completion of measurement. Takes 40-50ms.
-  while (distanceSensor.newDataReady() == false)
-    delay(5);
-
-  long endTime = millis();
-
+  distanceSensor.startRanging(); //Write configuration block of 135 bytes to setup a measurement
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-
+  long endTime = millis();
+  
   Serial.print("Distance(mm): ");
   Serial.print(distance);
 
   history[historySpot] = distance;
-  if (historySpot++ == HISTORY_SIZE) historySpot = 0;
+  if (++historySpot == HISTORY_SIZE) historySpot = 0;
 
   long avgDistance = 0;
   for (int x = 0 ; x < HISTORY_SIZE ; x++)
