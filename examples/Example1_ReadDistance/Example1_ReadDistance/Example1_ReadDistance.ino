@@ -5,7 +5,7 @@
   Date: April 4th, 2018
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
 
-  SparkFun labored with love to create this code. Feel like supporting open source hardware? 
+  SparkFun labored with love to create this code. Feel like supporting open source hardware?
   Buy a board from SparkFun! https://www.sparkfun.com/products/14667
 
   This example prints the distance to an object.
@@ -14,13 +14,11 @@
 */
 
 #include <Wire.h>
+//#include "vl53l1x_class.h"
 #include "SparkFun_VL53L1X.h"
 
-//Optional interrupt and shutdown pins.
-#define SHUTDOWN_PIN 2
-#define INTERRUPT_PIN 3
-
-SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
+SFEVL53L1X distanceSensor(Wire, 2, 3);
+int distance;
 
 void setup(void)
 {
@@ -29,30 +27,27 @@ void setup(void)
   Serial.begin(9600);
   Serial.println("VL53L1X Qwiic Test");
 
-  if (distanceSensor.init() == false)
+  if (distanceSensor.init() == 0)
   {
     Serial.println("Sensor online!");
   }
-  
-  distanceSensor.setDistanceModeShort();
-  //distanceSensor.setDistanceModeLong();
 }
 
 void loop(void)
 {
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
+  distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.stopRanging(); //Write configuration bytes to initiate measurement
 
-  int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  float distanceInches = distance * 0.0393701; //calculate Feet
+  float distanceFeet = distanceInches / 12.0;
 
   Serial.print("Distance(mm): ");
   Serial.print(distance);
-
-  float distanceInches = distance * 0.0393701;
-  float distanceFeet = distanceInches / 12.0;
-
   Serial.print("\tDistance(ft): ");
   Serial.print(distanceFeet, 2);
 
   Serial.println();
+
 }
 

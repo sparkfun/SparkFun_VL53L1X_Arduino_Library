@@ -15,9 +15,13 @@
 
 */
 #include <Wire.h>
+#include "SparkFun_VL53L1X.h"
 
-#include "SparkFun_VL53L1X_Arduino_Library.h"
-VL53L1X distanceSensor;
+//Optional interrupt and shutdown pins.
+#define SHUTDOWN_PIN 2
+#define INTERRUPT_PIN 3
+
+SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 #include <SoftwareSerial.h>
 
@@ -64,7 +68,7 @@ void setup(void)
   lcd.print("Distance: 3426  ");
   lcd.print("12 mph          ");
 
-  if (distanceSensor.begin() == false)
+  if (distanceSensor.init() == false)
   {
     Serial.println("Sensor offline!");
   }
@@ -77,10 +81,10 @@ void loop(void)
 {
 
   //Write configuration block of 135 bytes to setup a measurement
-  distanceSensor.startMeasurement();
+  distanceSensor.startRanging();
 
   //Poll for completion of measurement. Takes 40-50ms.
-  while (distanceSensor.newDataReady() == false)
+  while (distanceSensor.checkForDataReady() == false)
     delay(5);
 
   int distanceMM = distanceSensor.getDistance();
