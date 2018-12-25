@@ -270,7 +270,7 @@ uint16_t SFEVL53L1X::getDistanceThresholdHigh()
 
 void SFEVL53L1X::setROI(uint16_t x, uint16_t y)
 {
-	_device->VL53L1X_SetROI(x, x);
+	_device->VL53L1X_SetROI(x, y);
 }
 
 uint16_t SFEVL53L1X::getROIX()
