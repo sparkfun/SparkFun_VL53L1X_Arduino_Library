@@ -3,7 +3,7 @@
 #include "SparkFun_VL53L1X.h"
 #include "vl53l1x_class.h"
 
-SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort = Wire, int shutdownPin, int interruptPin)
+SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin, int interruptPin)
 {
 	*_i2cPort = i2cPort;
 	_shutdownPin = shutdownPin;
@@ -12,6 +12,11 @@ SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort = Wire, int shutdownPin, int interruptPi
 }
 
 bool SFEVL53L1X::init()
+{
+	return _device->VL53L1X_SensorInit();
+}
+
+bool SFEVL53L1X::begin()
 {
 	return _device->VL53L1X_SensorInit();
 }
@@ -225,7 +230,7 @@ void SFEVL53L1X::setOffset(int16_t offset)
 
 int16_t SFEVL53L1X::getOffset()
 {
-	uint16_t temp;
+	int16_t temp;
 	_device->VL53L1X_GetOffset(&temp);
 	return temp;
 }
