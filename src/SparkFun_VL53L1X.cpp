@@ -230,7 +230,7 @@ void SFEVL53L1X::setOffset(int16_t offset)
 
 int16_t SFEVL53L1X::getOffset()
 {
-	int16_t temp;
+	uint16_t temp;
 	_device->VL53L1X_GetOffset(&temp);
 	return temp;
 }
@@ -275,7 +275,7 @@ uint16_t SFEVL53L1X::getDistanceThresholdHigh()
 
 void SFEVL53L1X::setROI(uint16_t x, uint16_t y)
 {
-	_device->VL53L1X_SetROI(x, y);
+	_device->VL53L1X_SetROI(x, x);
 }
 
 uint16_t SFEVL53L1X::getROIX()
@@ -331,5 +331,6 @@ void SFEVL53L1X::calibrateOffset(uint16_t targetDistanceInMm)
 
 void SFEVL53L1X::calibrateXTalk(uint16_t targetDistanceInMm)
 {
-	_device->VL53L1X_CalibrateXtalk(targetDistanceInMm, getXTalk());
+	int16_t xTalk = getXTalk();
+	_device->VL53L1X_CalibrateXtalk(targetDistanceInMm, xTalk);
 };

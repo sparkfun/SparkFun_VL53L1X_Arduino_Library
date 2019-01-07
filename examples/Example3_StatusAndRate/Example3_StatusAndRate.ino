@@ -20,7 +20,9 @@
 #define SHUTDOWN_PIN 2
 #define INTERRUPT_PIN 3
 
-SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
+SFEVL53L1X distanceSensor;
+//Uncomment the following line to use the optional shutdown and interrupt pins.
+//SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 //Store distance readings to get rolling average
 #define HISTORY_SIZE 10
@@ -46,6 +48,7 @@ void loop(void)
   long startTime = millis();
   distanceSensor.startRanging(); //Write configuration block of 135 bytes to setup a measurement
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.stopRanging();
   long endTime = millis();
   
   Serial.print("Distance(mm): ");

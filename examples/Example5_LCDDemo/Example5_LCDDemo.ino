@@ -16,14 +16,15 @@
 */
 #include <Wire.h>
 #include "SparkFun_VL53L1X.h"
+#include <SoftwareSerial.h>
 
 //Optional interrupt and shutdown pins.
 #define SHUTDOWN_PIN 2
 #define INTERRUPT_PIN 3
 
-SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
-
-#include <SoftwareSerial.h>
+SFEVL53L1X distanceSensor;
+//Uncomment the following line to use the optional shutdown and interrupt pins.
+//SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 SoftwareSerial lcd(10, A3); // RX, TX
 
@@ -82,13 +83,9 @@ void loop(void)
 
   //Write configuration block of 135 bytes to setup a measurement
   distanceSensor.startRanging();
-
-  //Poll for completion of measurement. Takes 40-50ms.
-  while (distanceSensor.checkForDataReady() == false)
-    delay(5);
-
   int distanceMM = distanceSensor.getDistance();
-
+  distanceSensor.stopRanging();
+  
   lastReading = millis();
 
   history[historySpot] = distanceMM;

@@ -20,7 +20,9 @@
 #define SHUTDOWN_PIN 2
 #define INTERRUPT_PIN 3
 
-SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
+SFEVL53L1X distanceSensor;
+//Uncomment the following line to use the optional shutdown and interrupt pins.
+//SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
 void setup(void)
 {
@@ -39,8 +41,8 @@ void setup(void)
 void loop(void)
 {
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
-
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.stopRanging();
 
   Serial.print("Distance(mm): ");
   Serial.print(distance);
