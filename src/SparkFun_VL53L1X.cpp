@@ -230,7 +230,7 @@ void SFEVL53L1X::setOffset(int16_t offset)
 
 int16_t SFEVL53L1X::getOffset()
 {
-	uint16_t temp;
+	int16_t temp;
 	_device->VL53L1X_GetOffset(&temp);
 	return temp;
 }
@@ -326,11 +326,11 @@ void SFEVL53L1X::startTemperatureUpdate()
 void SFEVL53L1X::calibrateOffset(uint16_t targetDistanceInMm)
 {
 	int16_t offset = getOffset();
-	_device->VL53L1X_CalibrateOffset(targetDistanceInMm, offset);
+	_device->VL53L1X_CalibrateOffset(targetDistanceInMm, &offset);
 }
 
 void SFEVL53L1X::calibrateXTalk(uint16_t targetDistanceInMm)
 {
-	int16_t xTalk = getXTalk();
-	_device->VL53L1X_CalibrateXtalk(targetDistanceInMm, xTalk);
+	uint16_t xTalk = getXTalk();
+	_device->VL53L1X_CalibrateXtalk(targetDistanceInMm, &xTalk);
 };
