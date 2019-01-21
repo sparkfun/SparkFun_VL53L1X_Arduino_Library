@@ -5,7 +5,7 @@
 
 SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin, int interruptPin)
 {
-	*_i2cPort = i2cPort;
+	_i2cPort = &i2cPort;
 	_shutdownPin = shutdownPin;
 	_interruptPin = interruptPin;
 	_device = new VL53L1X(&i2cPort, shutdownPin, interruptPin);
