@@ -69,7 +69,7 @@ void setup(void)
   lcd.print("Distance: 3426  ");
   lcd.print("12 mph          ");
 
-  if (distanceSensor.begin() == false)
+  if (distanceSensor.begin() == true)
   {
     Serial.println("Sensor offline!");
   }

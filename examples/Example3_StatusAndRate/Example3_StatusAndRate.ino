@@ -36,7 +36,7 @@ void setup(void)
   Serial.begin(9600);
   Serial.println("VL53L1X Qwiic Test");
 
-  if (distanceSensor.begin() == false)
+  if (distanceSensor.begin() == true)
     Serial.println("Sensor online!");
 
   for (int x = 0 ; x < HISTORY_SIZE ; x++)
