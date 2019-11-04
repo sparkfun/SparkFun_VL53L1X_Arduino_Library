@@ -457,7 +457,7 @@ class VL53L1X : public RangeSensor
 	 * The smallest acceptable ROI size = 4\n
 	 * @param X:ROI Width; Y=ROI Height
 	 */
-	VL53L1X_ERROR VL53L1X_SetROI(uint16_t X, uint16_t Y);
+	VL53L1X_ERROR VL53L1X_SetROI(uint8_t X, uint8_t Y, uint8_t opticalCenter);
 
 	/**
 	 *@brief This function returns width X and height Y

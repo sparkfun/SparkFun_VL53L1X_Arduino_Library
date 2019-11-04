@@ -1,3 +1,27 @@
+/*
+  This is a library written for the VL53L1X I2C Distance sensor.
+
+  Written by Andy England @ SparkFun Electronics, October 17th, 2017
+
+  The sensor uses I2C to communicate, as well as a single (optional)
+  interrupt line that is not currently supported in this driver.
+
+  https://github.com/sparkfun/SparkFun_VL53L1X_Arduino_Library
+
+  Do you like this library? Help support SparkFun. Buy a board!
+
+  Development environment specifics:
+  Arduino IDE 1.8.1
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdlib.h>
 #include "Arduino.h"
 #include "SparkFun_VL53L1X.h"
@@ -273,9 +297,9 @@ uint16_t SFEVL53L1X::getDistanceThresholdHigh()
 	return temp;
 }
 
-void SFEVL53L1X::setROI(uint16_t x, uint16_t y)
+void SFEVL53L1X::setROI(uint8_t x, uint8_t y, uint8_t opticalCenter)
 {
-	_device->VL53L1X_SetROI(x, x);
+	_device->VL53L1X_SetROI(x, y, opticalCenter);
 }
 
 uint16_t SFEVL53L1X::getROIX()

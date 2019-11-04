@@ -738,20 +738,19 @@ VL53L1X_ERROR VL53L1X::VL53L1X_GetDistanceThresholdHigh(uint16_t *high)
 	return status;
 }
 
-VL53L1X_ERROR VL53L1X::VL53L1X_SetROI(uint16_t X, uint16_t Y)
+VL53L1X_ERROR VL53L1X::VL53L1X_SetROI(uint8_t X, uint8_t Y, uint8_t opticalCenter)
 {
-	uint8_t OpticalCenter;
 	VL53L1X_ERROR status = 0;
 
-	status =VL53L1_RdByte(Device, VL53L1_ROI_CONFIG__MODE_ROI_CENTRE_SPAD, &OpticalCenter);
+	status =VL53L1_RdByte(Device, VL53L1_ROI_CONFIG__MODE_ROI_CENTRE_SPAD, &opticalCenter);
 	if (X > 16)
 		X = 16;
 	if (Y > 16)
 		Y = 16;
 	if (X > 10 || Y > 10){
-		OpticalCenter = 199;
+		opticalCenter = 199;
 	}
-	status = VL53L1_WrByte(Device, ROI_CONFIG__USER_ROI_CENTRE_SPAD, OpticalCenter);
+	status = VL53L1_WrByte(Device, ROI_CONFIG__USER_ROI_CENTRE_SPAD, opticalCenter);
 	status = VL53L1_WrByte(Device, ROI_CONFIG__USER_ROI_REQUESTED_GLOBAL_XY_SIZE,
 		       (Y - 1) << 4 | (X - 1));
 	return status;
