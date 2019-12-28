@@ -85,10 +85,10 @@ void loop(void)
       Serial.print("Good");
       break;
     case 1:
-      Serial.print("Signal fail");
+      Serial.print("Sigma fail");
       break;
     case 2:
-      Serial.print("Sigma fail");
+      Serial.print("Signal fail");
       break;
     case 7:
       Serial.print("Wrapped target fail");
