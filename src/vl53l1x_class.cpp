@@ -173,14 +173,20 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SetI2CAddress(uint8_t new_address)
 VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 {
 	VL53L1X_ERROR status = 0;
-	uint8_t Addr = 0x00, tmp=0;
+	uint8_t Addr = 0x00, tmp=0, timeout = 0;
 
 	for (Addr = 0x2D; Addr <= 0x87; Addr++){
 		status = VL53L1_WrByte(Device, Addr, VL51L1X_DEFAULT_CONFIGURATION[Addr - 0x2D]);
 	}
 	status = VL53L1X_StartRanging();
 	while(tmp==0){
-			status = VL53L1X_CheckForDataReady(&tmp);
+		status = VL53L1X_CheckForDataReady(&tmp);
+		timeout++;
+		if (timeout > 50)
+		{
+			status = VL53L1_ERROR_TIME_OUT;
+			return status;
+		}
 	}
 	tmp  = 0;
 	status = VL53L1X_ClearInterrupt();
