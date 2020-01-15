@@ -748,7 +748,6 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SetROI(uint8_t X, uint8_t Y, uint8_t opticalCente
 {
 	VL53L1X_ERROR status = 0;
 
-	status =VL53L1_RdByte(Device, VL53L1_ROI_CONFIG__MODE_ROI_CENTRE_SPAD, &opticalCenter);
 	if (X > 16)
 		X = 16;
 	if (Y > 16)
