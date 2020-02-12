@@ -83,7 +83,11 @@ void loop(void)
 
   //Write configuration block of 135 bytes to setup a measurement
   distanceSensor.startRanging();
+  while (!distanceSensor.checkForDataReady()) {
+    delay(1);
+  }
   int distanceMM = distanceSensor.getDistance();
+  distanceSensor.clearInterrupt();
   distanceSensor.stopRanging();
   
   lastReading = millis();

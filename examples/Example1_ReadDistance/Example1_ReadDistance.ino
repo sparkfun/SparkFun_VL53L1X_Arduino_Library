@@ -46,7 +46,11 @@ void setup(void)
 void loop(void)
 {
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
+  while (!distanceSensor.checkForDataReady()) {
+    delay(1);
+  }
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.clearInterrupt();
   distanceSensor.stopRanging();
 
   Serial.print("Distance(mm): ");
