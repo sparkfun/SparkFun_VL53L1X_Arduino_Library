@@ -47,7 +47,11 @@ void loop(void)
 {
   long startTime = millis();
   distanceSensor.startRanging(); //Write configuration block of 135 bytes to setup a measurement
+  while (!distanceSensor.checkForDataReady()) {
+    delay(1);
+  }
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.clearInterrupt();
   distanceSensor.stopRanging();
   long endTime = millis();
   

@@ -32,17 +32,21 @@ void setup(void)
   Serial.println("VL53L1X Qwiic Test");
 
   if (distanceSensor.begin() == 0) //Begin returns 0 on a good init
-    Serial.println("Sensor online!");
+  Serial.println("Sensor online!");
     
-  distanceSensor.setIntermeasurementPeriod(40);
+  // Intermeasurement period must be >= timing budget. Default = 100 ms.
+  distanceSensor.setIntermeasurementPeriod(200);
   Serial.println(distanceSensor.getIntermeasurementPeriod());
+  distanceSensor.startRanging(); // Start only once (and do never call stop)
 }
 
 void loop(void)
 {
-  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
+  while (!distanceSensor.checkForDataReady()) {
+    delay(1);
+  }
   int distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-  distanceSensor.stopRanging();
+  distanceSensor.clearInterrupt();
 
   Serial.print("Distance(mm): ");
   Serial.print(distance);
