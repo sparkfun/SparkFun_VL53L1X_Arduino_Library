@@ -1,5 +1,7 @@
 SparkFun Qwiic 4m Distance Sensor with VL53L1X
 ========================================
+[![Build Status](https://github.com/ArminJo/SparkFun_VL53L1X_Arduino_Library/workflows/LibraryBuild/badge.svg)](https://github.com/ArminJo/SparkFun_VL53L1X_Arduino_Library/actions)
+
 
 ![SparkFun Distance Sensor Breakout - 4 Meter, VL53L1X (Qwiic)](https://cdn.sparkfun.com//assets/parts/1/2/9/4/8/14722-SparkFun_Distance_Sensor_Breakout-_4_Meter__VL53L1X__Qwiic_-01.jpg)
 
