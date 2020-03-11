@@ -26,7 +26,11 @@ SFEVL53L1X distanceSensor;
 //Uncomment the following line to use the optional shutdown and interrupt pins.
 //SFEVL53L1X distanceSensor(Wire, SHUTDOWN_PIN, INTERRUPT_PIN);
 
+#if defined(ESP8266)
+SoftwareSerial lcd(10, 9); // RX, TX
+#else
 SoftwareSerial lcd(10, A3); // RX, TX
+#endif
 
 //Store distance readings to get rolling average
 #define HISTORY_SIZE 8
@@ -136,7 +140,7 @@ void loop(void)
 
   instantMPH = abs(instantMPH); //We want to measure as you walk away
 
-  ceil(instantMPH); //Round up to the next number. This is helpful if we're not displaying decimals.
+  instantMPH = ceil(instantMPH); //Round up to the next number. This is helpful if we're not displaying decimals.
 
   if (instantMPH > maxMPH)
   {

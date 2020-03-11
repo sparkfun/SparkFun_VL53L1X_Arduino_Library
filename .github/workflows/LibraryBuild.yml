@@ -3,6 +3,7 @@
 #
 # Copyright (C) 2020  Armin Joachimsmeyer
 # https://github.com/ArminJo/Github-Actions
+# License: MIT
 #
 # Before being able to push to my .github\workflows directories,
 # I had to create a new personal token with workflow enabled at https://github.com/settings/tokens
@@ -21,9 +22,9 @@ jobs:
       # Space separated list without double quotes around the list. 
       # If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes
       # around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
-      REQUIRED_LIBRARIES:
+      REQUIRED_LIBRARIES: EspSoftwareSerial
 
-      # Output colors
+      # Global color definitions for output colors
       RED: '\033[0;31m'
       GREEN: '\033[0;32m'
       YELLOW: '\033[1;33m'
@@ -67,18 +68,20 @@ jobs:
 
           - arduino-boards-fqbn: arduino:sam:arduino_due_x
             platform: arduino:sam
-            examples-exclude: Example5_LCDDemo Example6_ArduinoPlotterOutput Example7_Calibration # Space separated list of (unique substrings of) example names to exclude in build
+            examples-exclude: Example5_LCDDemo # No SoftwareSerial available. Space separated list of (unique substrings of) example names to exclude in build
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform: esp8266:esp8266
-            examples-exclude: Example5_LCDDemo # Space separated list of (unique substrings of) example names to exclude in build
 
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
             platform: esp32:esp32
-            examples-exclude: Example5_LCDDemo Example6_ArduinoPlotterOutput Example7_Calibration # Space separated list of (unique substrings of) example names to exclude in build
 
           - arduino-boards-fqbn: STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
             platform: STM32:stm32
+            
+######################################################
+# End of configuration, start of fixed script section
+######################################################
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false

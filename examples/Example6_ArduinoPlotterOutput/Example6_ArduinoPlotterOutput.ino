@@ -44,9 +44,11 @@ void setup(void) {
     // Just to know which program is running on my Arduino
     Serial.println(F("START " __FILE__));
 
+#if ! defined (ESP32) && ! defined(ARDUINO_SAM_DUE) && ! defined(__SAM3X8E__)
     // test beep for the connected speaker
     tone(TONE_PIN,1000,100);
     delay(200);
+#endif
 
     if (distanceSensor.begin() == 0) { //Begin returns 0 on a good init
         Serial.println("Sensor online!");
@@ -89,12 +91,16 @@ void loop(void) {
     unsigned int tAmbientRate = distanceSensor.getAmbientRate();
 
     if (rangeStatus == 0) {
+#if ! defined (ESP32) && ! defined(ARDUINO_SAM_DUE) && ! defined(__SAM3X8E__)
         tone(11, distance + 500);
+#endif
     } else {
         // if tAmbientRate > tSignalRate we likely get a signal fail error condition
-        // in Distance mode short error 4 (out of bounds) or 7 (wrap around) is thrown if the distance is greater than 1.3 meter.
+        // in Distance mode short we get error 4 (out of bounds) or 7 (wrap around) if the distance is greater than 1.3 meter.
         distance = rangeStatus;
+#if ! defined (ESP32) && ! defined(ARDUINO_SAM_DUE) && ! defined(__SAM3X8E__)
         noTone(11);
+#endif
     }
 
     Serial.print(distance);
@@ -102,7 +108,5 @@ void loop(void) {
     Serial.print(tSignalRate / 100);
     Serial.print(' ');
     Serial.println(tAmbientRate / 100);
-
-
 }
 

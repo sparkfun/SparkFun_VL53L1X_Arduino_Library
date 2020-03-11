@@ -52,8 +52,10 @@ void setup(void) {
     // Just to know which program is running on my Arduino
     Serial.println(F("START " __FILE__ "\r\nVersion " VERSION_EXAMPLE " from  " __DATE__));
 
+#if ! defined (ESP32) && ! defined(ARDUINO_SAM_DUE) && ! defined(__SAM3X8E__)
     tone(TONE_PIN, 1000, 100);
     delay(200);
+#endif
 
     Serial.println();
     Serial.println("*****************************************************************************************************");
@@ -94,6 +96,7 @@ void setup(void) {
     }
 
     Serial.println("Distance below 10cm detected for more than a second, start offset calibration in 5 seconds");
+#if ! defined (ESP32) && ! defined(ARDUINO_SAM_DUE) && ! defined(__SAM3X8E__)
     tone(TONE_PIN, 1000, 100);
     delay(1000);
     tone(TONE_PIN, 1000, 100);
@@ -104,6 +107,9 @@ void setup(void) {
     delay(1000);
     tone(TONE_PIN, 1000, 900);
     delay(1000);
+#else
+    delay(5000);
+#endif
 
     /*
      * Place a target, 17 % gray, at a distance of 140 mm from the sensor and call the VL53L1X_CalibrateOffset (dev, 140, &offset) function.
@@ -127,7 +133,9 @@ void setup(void) {
     distanceSensor.setIntermeasurementPeriod(100);
     distanceSensor.startRanging(); // Start once
 
+#if ! defined (ESP32) && ! defined(ARDUINO_SAM_DUE) && ! defined(__SAM3X8E__)
     tone(TONE_PIN, 1000, 900);
+#endif
 }
 
 void loop(void) {
