@@ -1,0 +1,158 @@
+# LibraryBuild.yml
+# Github workflow script to test compile all examples of an Arduino library repository.
+#
+# Copyright (C) 2020  Armin Joachimsmeyer
+# https://github.com/ArminJo/Github-Actions
+# License: MIT
+#
+# Before being able to push to my .github\workflows directories,
+# I had to create a new personal token with workflow enabled at https://github.com/settings/tokens
+
+# This is the name of the workflow, visible on GitHub UI.
+name: LibraryBuild
+on: [push, pull_request] # see: https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
+
+jobs:
+  build:
+    name: ${{ matrix.arduino-boards-fqbn }} - test compiling examples
+
+    runs-on: ubuntu-latest # I picked Ubuntu to use shell scripts.
+
+    env:
+      # Space separated list without double quotes around the list. 
+      # If you need a library with a space in its name, like Adafruit NeoPixel or Adafruit INA219, you must use double quotes
+      # around the name and have at least 2 entries, where the first must be without double quotes! You may use Servo as dummy entry.
+      REQUIRED_LIBRARIES: EspSoftwareSerial
+
+      # Global color definitions for output colors
+      RED: '\033[0;31m'
+      GREEN: '\033[0;32m'
+      YELLOW: '\033[1;33m'
+      BLUE: '\033[0;34m'
+
+    strategy:
+      matrix:
+        # The matrix will produce one job for each configuration parameter of type `arduino-boards-fqbn`
+        # In the Arduino IDE, the fqbn is printed in the first line of the verbose output for compilation as parameter -fqbn=... for the "arduino-builder -dump-prefs" command
+        #
+        # Examples: arduino:avr:uno, arduino:avr:leonardo, arduino:avr:nano, arduino:avr:mega
+        # arduino:sam:arduino_due_x, arduino:samd:arduino_zero_native"
+        # ATTinyCore:avr:attinyx5:chip=85,clock=1internal, digistump:avr:digispark-tiny, digistump:avr:digispark-pro
+        # STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
+        # esp8266:esp8266:huzzah:eesz=4M3M,xtal=80, esp32:esp32:featheresp32:FlashFreq=80
+        # You may add a suffix behind the fqbn with "|" to specify one board for e.g. different compile options like arduino:avr:uno|trace
+        #############################################################################################################
+        arduino-boards-fqbn:
+          - arduino:avr:uno
+          - arduino:avr:leonardo
+          - arduino:avr:mega
+          - arduino:sam:arduino_due_x
+          - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
+          - esp32:esp32:featheresp32:FlashFreq=80
+          - STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
+
+        # Choose the right platform for the boards we want to test. (maybe in the future Arduino will automatically do this for you).
+        # This works like this: when the fqbn is "arduino:avr:uno" the variable `platform` is set to "arduino:avr".
+        # Just take the first 2 token of the fqbn - this cannot be automatically done by GitHub workflow :-(
+        # You may exclude specific examples for a board with examples-exclude: Use a space separated list.
+        #############################################################################################################
+        include:
+          - arduino-boards-fqbn: arduino:avr:uno
+            platform: arduino:avr
+
+          - arduino-boards-fqbn: arduino:avr:leonardo
+            platform: arduino:avr
+
+          - arduino-boards-fqbn: arduino:avr:mega
+            platform: arduino:avr
+
+          - arduino-boards-fqbn: arduino:sam:arduino_due_x
+            platform: arduino:sam
+            examples-exclude: Example5_LCDDemo # No SoftwareSerial available. Space separated list of (unique substrings of) example names to exclude in build
+
+          - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
+            platform: esp8266:esp8266
+
+          - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
+            platform: esp32:esp32
+
+          - arduino-boards-fqbn: STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
+            platform: STM32:stm32
+            
+######################################################
+# End of configuration, start of fixed script section
+######################################################
+
+      # Do not cancel all jobs / architectures if one job fails
+      fail-fast: false
+
+    # This is the list of steps this job will run.
+    steps:
+
+      # First of all, we clone the repo using the `checkout` action.
+      - name: Checkout
+        uses: actions/checkout@master
+
+      # We use the `arduino/setup-arduino-cli` action to install and
+      # configure the Arduino CLI on the system.
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v1.0.0
+
+      - name: Link this repository as Arduino library
+        run: |
+          mkdir -p $HOME/Arduino/libraries
+          ln -s $PWD $HOME/Arduino/libraries/.
+
+      - name: Install platform from build matrix
+        env:
+          FQBN: ${{ matrix.arduino-boards-fqbn }}
+        run: |
+          arduino-cli core update-index
+          if [ "${{  matrix.platform }}" == "" ]; then echo -e ""$RED"ERROR: platform missing for board ${FQBN%|*}. Check your matrix.includes entries"; exit 1; fi
+          if [[ ${{  matrix.platform }} != *"arduino"* && ! -f ./arduino-cli.yaml ]]; then echo -e ""$RED"Non Arduino platform ${{  matrix.platform }} requested, but file arduino-cli.yaml is missing."; exit 1; fi
+          arduino-cli core install ${{ matrix.platform }} # for each job / board one platform is installed
+          arduino-cli board listall
+          if [ ${{  matrix.platform }} == "esp32:esp32" ]; then pip install pyserial; fi
+
+      - name: List installed boards with their FQBN
+        run: |
+          arduino-cli board listall
+          # ls -l $HOME/.arduino15/packages/ # I see only arduino and one of the Attiny cores but not all 3 together
+          # echo -e HOME=\"$HOME\" # /home/runner
+          # echo PWD=$PWD # /home/runner/work/Github-Actions-Test/Github-Actions-Test
+          # which arduino-cli # /opt/hostedtoolcache/arduino-cli/0.9.0/x64/arduino-cli
+
+      - name: Install libraries
+        run: if [[ "$REQUIRED_LIBRARIES" != "" ]]; then arduino-cli lib install ${{ env.REQUIRED_LIBRARIES }}; fi
+
+      # Finally, we compile the sketch, using the FQBN that was set in the build matrix.
+      - name: Compile all examples
+        env:
+          FQBN: ${{ matrix.arduino-boards-fqbn }}
+          BUILD_PROPERTIES: ${{ toJson(matrix.examples-build-properties) }}
+        run: |
+          BUILD_PROPERTIES=${BUILD_PROPERTIES#\{} # remove "{"
+          # if matrix.examples-build-properties are specified, create an associative shell array
+          if [[ $BUILD_PROPERTIES != "null" ]]; then declare -A PROP_MAP="( $(echo $BUILD_PROPERTIES | sed -E 's/"(\w*)": *([^,}]*)[,}]/\[\1\]=\2/g' ) )"; fi
+          echo -e "Compiling examples for board ${{ matrix.arduino-boards-fqbn }} \n"
+          EXAMPLES=($(find . -name "*.ino"))
+          for example in "${EXAMPLES[@]}"; do # Loop over all example directories
+            EXAMPLE_NAME=$(basename $(dirname $example))
+            if [[ "${{ matrix.examples-exclude }}" == *"$EXAMPLE_NAME"* ]]; then
+              echo -e "Skipping $EXAMPLE_NAME \xe2\x9e\x9e" # Right arrow
+            else
+              # check if there is an entry in the associative array and create a compile parameter
+              echo -n "Compiling $EXAMPLE_NAME "
+              if [[ "${PROP_MAP[$EXAMPLE_NAME]}" != "" ]]; then echo -n "with ${PROP_MAP[$EXAMPLE_NAME]} "; fi
+              build_stdout=$(arduino-cli compile --verbose --warnings all --fqbn ${FQBN%|*} --build-properties compiler.cpp.extra_flags="${PROP_MAP[$EXAMPLE_NAME]}" $(dirname $example) 2>&1);
+              if [ $? -ne 0 ]; then
+                echo -e ""$RED"\xe2\x9c\x96" # If ok output a green checkmark else a red X and the command output.
+                exit_code=1
+                echo -e "$build_stdout \n"
+              else
+                echo -e ""$GREEN"\xe2\x9c\x93"
+              fi
+            fi
+          done
+          exit $exit_code
+        shell: bash {0} # Needed to avoid an exit at first error
