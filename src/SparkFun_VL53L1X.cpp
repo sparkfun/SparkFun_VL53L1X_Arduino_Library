@@ -42,6 +42,9 @@ bool SFEVL53L1X::init()
 
 bool SFEVL53L1X::begin()
 {
+	if (checkID() == false)
+		return (VL53L1_ERROR_PLATFORM_SPECIFIC_START);
+
 	return _device->VL53L1X_SensorInit();
 }
 
@@ -51,32 +54,31 @@ bool SFEVL53L1X::checkID()
 {
 	uint16_t sensorId;
 	_device->VL53L1X_GetSensorId(&sensorId);
-	if (sensorId == 0xEEAC)
+	if (sensorId == 0xEACC)
 		return true;
 	return false;
 }
-
 
 /*Turns the sensor on if the Shutdown pin is connected*/
 
 void SFEVL53L1X::sensorOn()
 {
-	if(_shutdownPin >= 0)
-       {
-         digitalWrite(_shutdownPin, HIGH);
-       }
-       delay(10);
+	if (_shutdownPin >= 0)
+	{
+		digitalWrite(_shutdownPin, HIGH);
+	}
+	delay(10);
 }
 
 /*Turns the sensor off if the Shutdown pin is connected*/
 
 void SFEVL53L1X::sensorOff()
 {
-	if(_shutdownPin >= 0)
-       {
-         digitalWrite(_shutdownPin, LOW);
-       }
-       delay(10);
+	if (_shutdownPin >= 0)
+	{
+		digitalWrite(_shutdownPin, LOW);
+	}
+	delay(10);
 }
 
 /*Gets the software version number of the current library installed.*/
@@ -118,7 +120,7 @@ void SFEVL53L1X::setInterruptPolarityLow()
  * This function gets the interrupt polarity\n
  * 1=active high (default), 0=active low
  */
- 
+
 uint8_t SFEVL53L1X::getInterruptPolarity()
 {
 	uint8_t tmp;
@@ -145,7 +147,7 @@ bool SFEVL53L1X::checkForDataReady()
 
 void SFEVL53L1X::setTimingBudgetInMs(uint16_t timingBudget)
 {
-	_device->VL53L1X_SetTimingBudgetInMs(timingBudget);	
+	_device->VL53L1X_SetTimingBudgetInMs(timingBudget);
 }
 
 uint16_t SFEVL53L1X::getTimingBudgetInMs()
