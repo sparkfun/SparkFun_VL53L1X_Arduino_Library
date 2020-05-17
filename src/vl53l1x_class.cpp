@@ -1009,8 +1009,10 @@ VL53L1X_ERROR VL53L1X::VL53L1_I2CWrite(uint8_t DeviceAddr, uint16_t RegisterAddr
 VL53L1X_ERROR VL53L1X::VL53L1_I2CRead(uint8_t DeviceAddr, uint16_t RegisterAddr, uint8_t *pBuffer, uint16_t NumByteToRead)
 {
 	int status = 0;
+
 	//Loop until the port is transmitted correctly
-	do
+	uint8_t maxAttempts = 5;
+	for (uint8_t x = 0; x < maxAttempts; x++)
 	{
 #ifdef DEBUG_MODE
 		Serial.print("Beginning transmission to ");
@@ -1026,6 +1028,10 @@ VL53L1X_ERROR VL53L1X::VL53L1_I2CRead(uint8_t DeviceAddr, uint16_t RegisterAddr,
 		buffer[1] = RegisterAddr & 0xFF;
 		dev_i2c->write(buffer, 2);
 		status = dev_i2c->endTransmission(false);
+
+		if (status == 0)
+			break;
+
 //Fix for some STM32 boards
 //Reinitialize th i2c bus with the default parameters
 #ifdef ARDUINO_ARCH_STM32
@@ -1036,7 +1042,7 @@ VL53L1X_ERROR VL53L1X::VL53L1_I2CRead(uint8_t DeviceAddr, uint16_t RegisterAddr,
 		}
 #endif
 		//End of fix
-	} while (status != 0);
+	}
 
 	dev_i2c->requestFrom(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)), (byte)NumByteToRead);
 
