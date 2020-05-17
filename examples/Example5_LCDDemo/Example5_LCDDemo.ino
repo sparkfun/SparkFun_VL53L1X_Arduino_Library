@@ -15,7 +15,7 @@
 
 */
 #include <Wire.h>
-#include "SparkFun_VL53L1X.h"
+#include "SparkFun_VL53L1X.h" //Click here to get the library: http://librarymanager/All#SparkFun_VL53L1X
 #include <SoftwareSerial.h>
 
 //Optional interrupt and shutdown pins.
@@ -50,7 +50,7 @@ byte deltaSpot = 0; //Keeps track of where we are within the deltas array
 //Too quickly and it gets twitchy. Too slow and it doesn't seem like it's responding.
 #define LOOPTIME 50
 
-int maxMPH = 0; //Keeps track of what the latest fastest speed is
+int maxMPH = 0;          //Keeps track of what the latest fastest speed is
 long maxMPH_timeout = 0; //Forget the max speed after some length of time
 
 #define maxMPH_remember 3000 //After this number of ms the system will forget the max speed
@@ -73,12 +73,15 @@ void setup(void)
   lcd.print("Distance: 3426  ");
   lcd.print("12 mph          ");
 
-  if (distanceSensor.begin() == 0) //Begin returns 0 on a good init
+  if (distanceSensor.begin() != 0) //Begin returns 0 on a good init
   {
-    Serial.println("Sensor online!");
+    Serial.println("Sensor failed to begin. Please check wiring. Freezing...");
+    while (1)
+      ;
   }
+  Serial.println("Sensor online!");
 
-  for (int x = 0 ; x < HISTORY_SIZE ; x++)
+  for (int x = 0; x < HISTORY_SIZE; x++)
     history[x] = 0;
 }
 
@@ -87,24 +90,25 @@ void loop(void)
 
   //Write configuration block of 135 bytes to setup a measurement
   distanceSensor.startRanging();
-  while (!distanceSensor.checkForDataReady()) {
+  while (!distanceSensor.checkForDataReady())
+  {
     delay(1);
   }
   int distanceMM = distanceSensor.getDistance();
   distanceSensor.clearInterrupt();
   distanceSensor.stopRanging();
-  
+
   lastReading = millis();
 
   history[historySpot] = distanceMM;
-  if (historySpot++ == HISTORY_SIZE) historySpot = 0;
+  if (historySpot++ == HISTORY_SIZE)
+    historySpot = 0;
 
   long avgDistance = 0;
-  for (int x = 0 ; x < HISTORY_SIZE ; x++)
+  for (int x = 0; x < HISTORY_SIZE; x++)
     avgDistance += history[x];
 
   avgDistance /= HISTORY_SIZE;
-
 
   //Every loop let's get a reading
   newDistance = distanceMM / 10; //Go get distance in cm
@@ -114,24 +118,26 @@ void loop(void)
 
   //Scan delta array to see if this new delta is sane or not
   boolean safeDelta = true;
-  for (int x = 0 ; x < numberOfDeltas ; x++)
+  for (int x = 0; x < numberOfDeltas; x++)
   {
     //We don't want to register jumps greater than 30cm in 50ms
     //But if we're less than 1000cm then maybe
     //30 works well
-    if ( abs(deltaDistance - deltas[x]) > 40) safeDelta = false;
+    if (abs(deltaDistance - deltas[x]) > 40)
+      safeDelta = false;
   }
 
   //Insert this new delta into the array
   if (safeDelta)
   {
     deltas[deltaSpot++] = deltaDistance;
-    if (deltaSpot > numberOfDeltas) deltaSpot = 0; //Wrap this variable
+    if (deltaSpot > numberOfDeltas)
+      deltaSpot = 0; //Wrap this variable
   }
 
   //Get average of the current deltas array
   float avgDeltas = 0.0;
-  for (byte x = 0 ; x < numberOfDeltas ; x++)
+  for (byte x = 0; x < numberOfDeltas; x++)
     avgDeltas += (float)deltas[x];
   avgDeltas /= numberOfDeltas;
 
@@ -162,10 +168,12 @@ void loop(void)
   else
   {
     validCount++;
-    if (avgDistance > maxDistance) maxDistance = avgDistance;
+    if (avgDistance > maxDistance)
+      maxDistance = avgDistance;
   }
 
-  if (validCount > 10) readingValid = true;
+  if (validCount > 10)
+    readingValid = true;
 
   if (readingValid == false)
   {
@@ -195,4 +203,3 @@ void loop(void)
 
   delay(25);
 }
-
