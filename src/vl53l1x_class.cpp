@@ -173,6 +173,9 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 		status = VL53L1_WrByte(Device, Addr, VL51L1X_DEFAULT_CONFIGURATION[Addr - 0x2D]);
 	}
 	status = VL53L1X_StartRanging();
+
+	delay(103); //Wait the default intermeasurement period of 103ms before checking for dataready
+
 	while (tmp == 0)
 	{
 		status = VL53L1X_CheckForDataReady(&tmp);
@@ -182,6 +185,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 			status = VL53L1_ERROR_TIME_OUT;
 			return status;
 		}
+		delay(1);
 	}
 	tmp = 0;
 	status = VL53L1X_ClearInterrupt();
