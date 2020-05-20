@@ -28,6 +28,8 @@ SFEVL53L1X distanceSensor;
 
 #if defined(ESP8266)
 SoftwareSerial lcd(10, 9); // RX, TX
+#elif defined(ARDUINO_ARCH_APOLLO3)
+SoftwareSerial lcd(14, 15); // use RX1, TX1 of Apollo boards
 #else
 SoftwareSerial lcd(10, A3); // RX, TX
 #endif
