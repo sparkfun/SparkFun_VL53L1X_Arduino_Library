@@ -47,7 +47,13 @@ jobs:
           - arduino:avr:leonardo
           - arduino:avr:mega
           - arduino:sam:arduino_due_x
+          - SparkFun:apollo3:artemis
           - SparkFun:apollo3:amap3redboard
+          - SparkFun:apollo3:amap3nano
+          - SparkFun:apollo3:amap3atp
+          - SparkFun:apollo3:amap3thing
+          - SparkFun:apollo3:edge
+          - SparkFun:apollo3:edge2
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
           - esp32:esp32:featheresp32:FlashFreq=80
           - STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
