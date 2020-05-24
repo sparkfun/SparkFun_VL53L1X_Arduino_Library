@@ -166,7 +166,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SetI2CAddress(uint8_t new_address)
 VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 {
 	VL53L1X_ERROR status = 0;
-	uint8_t Addr = 0x00, tmp = 0, timeout = 0;
+	uint8_t Addr = 0x00, dataReady = 0, timeout = 0;
 
 	for (Addr = 0x2D; Addr <= 0x87; Addr++)
 	{
@@ -174,20 +174,15 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 	}
 	status = VL53L1X_StartRanging();
 
-	delay(103); //Wait the default intermeasurement period of 103ms before checking for dataready
-
-	while (tmp == 0)
+	//We need to wait at least the default intermeasurement period of 103ms before dataready will occur
+	//But if a unit has already been powered and polling, it may happen much faster
+	while (dataReady == 0)
 	{
-		status = VL53L1X_CheckForDataReady(&tmp);
-		timeout++;
-		if (timeout > 50)
-		{
-			status = VL53L1_ERROR_TIME_OUT;
-			return status;
-		}
+		status = VL53L1X_CheckForDataReady(&dataReady);
+		if (timeout++ > 150)
+			return VL53L1_ERROR_TIME_OUT;
 		delay(1);
 	}
-	tmp = 0;
 	status = VL53L1X_ClearInterrupt();
 	status = VL53L1X_StopRanging();
 	status = VL53L1_WrByte(Device, VL53L1_VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND, 0x09); /* two bounds VHV */
