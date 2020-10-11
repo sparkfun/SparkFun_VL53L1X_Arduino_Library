@@ -223,8 +223,16 @@ VL53L1X_ERROR VL53L1X::VL53L1X_GetInterruptPolarity(uint8_t *pInterruptPolarity)
 VL53L1X_ERROR VL53L1X::VL53L1X_StartRanging()
 {
 	VL53L1X_ERROR status = 0;
-
+	// Consider: maybe also VL53L1_WrByte(Device, SYSTEM__INTERRUPT_CLEAR, 0x01); /* clear interrupt trigger */
 	status = VL53L1_WrByte(Device, SYSTEM__MODE_START, 0x40); /* Enable VL53L1X */
+	return status;
+}
+
+VL53L1X_ERROR VL53L1X::VL53L1X_StartOneshotRanging()
+{
+	VL53L1X_ERROR status = 0;
+	VL53L1_WrByte(Device, SYSTEM__INTERRUPT_CLEAR, 0x01); /*  clear interrupt trigger */
+	status = VL53L1_WrByte(Device, SYSTEM__MODE_START, 0x10); /* Enable VL53L1X one-shot ranging */
 	return status;
 }
 
