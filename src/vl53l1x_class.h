@@ -305,6 +305,11 @@ class VL53L1X : public RangeSensor
 	VL53L1X_ERROR VL53L1X_StartRanging();
 
 	/**
+	 * @brief This function starts a one-shot ranging distance operation\n
+	 */
+	VL53L1X_ERROR VL53L1X_StartOneshotRanging();
+
+	/**
 	 * @brief This function stops the ranging.
 	 */
 	VL53L1X_ERROR VL53L1X_StopRanging();

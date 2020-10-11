@@ -133,6 +133,10 @@ void SFEVL53L1X::startRanging()
 	_device->VL53L1X_StartRanging();
 }
 
+void SFEVL53L1X::startOneshotRanging() {
+  	_device->VL53L1X_StartOneshotRanging();
+}
+
 void SFEVL53L1X::stopRanging()
 {
 	_device->VL53L1X_StopRanging();
