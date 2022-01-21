@@ -30,6 +30,22 @@
 #include "vl53l1_error_codes.h"
 #include "vl53l1x_class.h"
 
+#define DISTANCE_SHORT 	0
+#define DISTANCE_LONG 	1
+#define WINDOW_BELOW	0
+#define WINDOW_ABOVE	1
+#define WINDOW_OUT		2
+#define WINDOW_IN		3
+
+struct DetectionConfig
+{
+	uint16_t distanceMode = DISTANCE_SHORT;	// distance mode : DISTANCE_SHORT (0) or DISTANCE_LONG (1)
+	uint16_t windowMode = WINDOW_IN;		// window mode : WINDOW_BELOW (0), WINDOW_ABOVE (1), WINDOW_OUT (2), WINDOW_IN (3)
+	uint8_t IntOnNoTarget = 1;				// = 1 (No longer used - just use 1)
+	uint16_t thresholdHigh = 0;				// (in mm) :  the threshold above which one the device raises an interrupt if Window = 1
+	uint16_t thresholdLow = 0;				// (in mm) : the threshold under which one the device raises an interrupt if Window = 0
+};
+
 class SFEVL53L1X
 {
 	public:
@@ -108,6 +124,9 @@ class SFEVL53L1X
 	void startTemperatureUpdate(); //Recalibrates the sensor for temperature changes. Run this any time the temperature has changed by more than 8°C
 	void calibrateOffset(uint16_t targetDistanceInMm); //Autocalibrate the offset by placing a target a known distance away from the sensor and passing this known distance into the function.
 	void calibrateXTalk(uint16_t targetDistanceInMm); //Autocalibrate the crosstalk by placing a target a known distance away from the sensor and passing this known distance into the function.
+	bool setThresholdConfig(DetectionConfig* config); //Sets threshold configuration struct
+	bool getThresholdConfig(DetectionConfig* config); //Gets current threshold settings. Returns false on error, true otherwise. Stores results in pointer to struct argument.
+
 	private:
 	TwoWire *_i2cPort;
 	int _shutdownPin;

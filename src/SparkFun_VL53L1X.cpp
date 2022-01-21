@@ -54,7 +54,7 @@ bool SFEVL53L1X::checkID()
 {
 	uint16_t sensorId;
 	_device->VL53L1X_GetSensorId(&sensorId);
-	if ( (sensorId == 0xEACC) || (sensorId == 0xEBAA) )
+	if ((sensorId == 0xEACC) || (sensorId == 0xEBAA))
 		return true;
 	return false;
 }
@@ -360,3 +360,43 @@ void SFEVL53L1X::calibrateXTalk(uint16_t targetDistanceInMm)
 	uint16_t xTalk = getXTalk();
 	_device->VL53L1X_CalibrateXtalk(targetDistanceInMm, &xTalk);
 };
+
+bool SFEVL53L1X::setThresholdConfig(DetectionConfig *config)
+{
+	VL53L1X_ERROR error = _device->VL53L1X_SetDistanceThreshold(config->thresholdLow, config->thresholdHigh,
+																(uint8_t)config->windowMode, (uint8_t)config->IntOnNoTarget);
+	return (error == VL53L1_ERROR_NONE);
+}
+
+bool SFEVL53L1X::getThresholdConfig(DetectionConfig *config)
+{
+	uint16_t temp16 = 0;
+
+	VL53L1X_ERROR error = _device->VL53L1X_GetDistanceMode(&temp16);
+	if (error != 0)
+		return false;
+	else
+		config->distanceMode = temp16;
+
+	error = _device->VL53L1X_GetDistanceThresholdWindow(&temp16);
+	if (error != 0)
+		return false;
+	else
+		config->windowMode = temp16;
+
+	config->IntOnNoTarget = 1;
+
+	error = _device->VL53L1X_GetDistanceThresholdLow(&temp16);
+	if (error != 0)
+		return false;
+	else
+		config->thresholdLow = temp16;
+
+	error = _device->VL53L1X_GetDistanceThresholdHigh(&temp16);
+	if (error != 0)
+		return false;
+	else
+		config->thresholdHigh = temp16;
+
+	return true;
+}
