@@ -63,6 +63,7 @@ class SFEVL53L1X
 	void setInterruptPolarityLow(); //Set the polarity of an active interrupt to Low
 	uint8_t getInterruptPolarity(); //get the current interrupt polarity
 	void startRanging(); //Begins taking measurements
+	void startOneshotRanging();  // Start one-shot ranging
 	void stopRanging(); //Stops taking measurements
 	bool checkForDataReady(); //Checks the to see if data is ready
 	void setTimingBudgetInMs(uint16_t timingBudget); //Set the timing budget for a measurement
