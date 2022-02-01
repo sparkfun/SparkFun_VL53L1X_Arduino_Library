@@ -164,12 +164,12 @@ uint16_t SFEVL53L1X::getTimingBudgetInMs()
 
 void SFEVL53L1X::setDistanceModeLong()
 {
-	_device->VL53L1X_SetDistanceMode(2);
+	_device->VL53L1X_SetDistanceMode(DISTANCE_LONG);
 }
 
 void SFEVL53L1X::setDistanceModeShort()
 {
-	_device->VL53L1X_SetDistanceMode(1);
+	_device->VL53L1X_SetDistanceMode(DISTANCE_SHORT);
 }
 
 uint8_t SFEVL53L1X::getDistanceMode()
@@ -368,9 +368,9 @@ void SFEVL53L1X::calibrateXTalk(uint16_t targetDistanceInMm)
 
 bool SFEVL53L1X::setThresholdConfig(DetectionConfig *config)
 {
-	VL53L1X_ERROR error = _device->VL53L1X_SetDistanceThreshold(config->thresholdLow, config->thresholdHigh,
-																(uint8_t)config->windowMode, (uint8_t)config->IntOnNoTarget);
-	return (error == VL53L1_ERROR_NONE);
+	return _device->VL53L1X_SetDistanceMode(config->distanceMode) == VL53L1_ERROR_NONE &&
+	       _device->VL53L1X_SetDistanceThreshold(config->thresholdLow, config->thresholdHigh,
+	       	(uint8_t)config->windowMode, (uint8_t)config->IntOnNoTarget) == VL53L1_ERROR_NONE;
 }
 
 bool SFEVL53L1X::getThresholdConfig(DetectionConfig *config)
