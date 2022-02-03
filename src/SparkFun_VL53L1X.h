@@ -30,8 +30,8 @@
 #include "vl53l1_error_codes.h"
 #include "vl53l1x_class.h"
 
-#define DISTANCE_SHORT 	0
-#define DISTANCE_LONG 	1
+#define DISTANCE_SHORT 	1
+#define DISTANCE_LONG 	2
 #define WINDOW_BELOW	0
 #define WINDOW_ABOVE	1
 #define WINDOW_OUT		2
