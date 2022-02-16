@@ -2,7 +2,6 @@ SparkFun Qwiic 4m Distance Sensor with VL53L1X
 ========================================
 [![Build Status](https://github.com/sparkfun/SparkFun_VL53L1X_Arduino_Library/workflows/LibraryBuild/badge.svg)](https://github.com/sparkfun/SparkFun_VL53L1X_Arduino_Library/actions)
 
- 
 
 <table class="table table-hover table-striped table-bordered">
   <tr align="center">
@@ -24,7 +23,7 @@ We’ve found the precision of VL53L1X sensor to be 1mm but the accuracy is arou
 SparkFun labored with love to create this code. Feel like supporting open source hardware? 
 Buy a [breakout board](https://www.sparkfun.com/products/14722) from SparkFun!
 
-*Note: The VL53L1X is the cousin of VL53L1X. Overall, the sensor functions the same except for a few differences in the specifications. We've also found the precision of VL53L4CD sensor to be 1mm but the accuracy is around +/-7mm  (white target: 88%, indoor, no infrared).*
+*Note: The VL53L4CD is the cousin of VL53L1X. Overall, the sensor functions the same except for a few differences in the specifications. We've also found the precision of VL53L4CD sensor to be 1mm but the accuracy is around +/-7mm  (white target: 88%, indoor, no infrared).*
 
 Repository Contents
 -------------------
