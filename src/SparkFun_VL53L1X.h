@@ -34,9 +34,11 @@
 
 #include "Arduino.h"
 #include "Wire.h"
-#include "RangeSensor.h"
-#include "vl53l1_error_codes.h"
-#include "vl53l1x_class.h"
+#include "st_src/RangeSensor.h"
+#include "st_src/vl53l1_error_codes.h"
+#include "st_src/vl53l1x_class.h"
+#include "st_src/ComponentObject.h"
+#include "st_src/RangeSensor.h"
 
 #define DISTANCE_SHORT 	1
 #define DISTANCE_LONG 	2

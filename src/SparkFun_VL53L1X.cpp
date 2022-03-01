@@ -31,9 +31,7 @@
 */
 
 #include <stdlib.h>
-#include "Arduino.h"
 #include "SparkFun_VL53L1X.h"
-#include "vl53l1x_class.h"
 
 SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin, int interruptPin)
 {

@@ -47,7 +47,7 @@ Products that use this Library
 License Information
 -------------------
 
-This product is _**open source**_! 
+SparkFun's source files are _**open source**_! 
 
 Please review the LICENSE.md file for license information. 
 
@@ -57,4 +57,6 @@ Please use, reuse, and modify these files as you see fit. Please maintain attrib
 
 Distributed as-is; no warranty is given.
 
+The source files included in the subfolder **st_src** are licensed differently. They are licensed under the BSD-3 license, check the License.md in
+that subfolder for specifics.
 - Your friends at SparkFun.
