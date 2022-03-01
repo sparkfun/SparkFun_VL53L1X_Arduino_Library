@@ -35,7 +35,7 @@ Repository Contents
 Documentation
 --------------
 * **[Installing an Arduino Library Guide](https://learn.sparkfun.com/tutorials/installing-an-arduino-library)** - Basic information on how to install an Arduino library.
-* **[Hookup Guide](https://learn.sparkfun.com/tutorials/qwiic-distance-sensor-vl53l1x-hookup-guide)**- Basic tutorial for the VL53L1X and VL53L4CD
+* **[Hookup Guide](https://learn.sparkfun.com/tutorials/qwiic-distance-sensor-vl53l1x-vl53l4cd-hookup-guide)**- Basic tutorial for the VL53L1X and VL53L4CD
 
 Products that use this Library
 --------------
