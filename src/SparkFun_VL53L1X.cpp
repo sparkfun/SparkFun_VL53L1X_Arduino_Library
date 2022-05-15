@@ -60,7 +60,7 @@ bool SFEVL53L1X::checkID()
 {
 	uint16_t sensorId;
 	_device->VL53L1X_GetSensorId(&sensorId);
-	if ((sensorId == 0xEACC) || (sensorId == 0xEBAA) || (sensorId == 0xEAAA))
+	if ((sensorId == 0xEACC) || (sensorId == 0xEBAA))
 		return true;
 	return false;
 }
