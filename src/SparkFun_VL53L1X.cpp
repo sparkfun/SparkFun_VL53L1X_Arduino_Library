@@ -47,6 +47,10 @@ SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin, int interruptPin)
 	_interruptPin = interruptPin;
 	_device = new VL53L1X(&i2cPort, shutdownPin, interruptPin);
 }
+SFEVL53L1X::~SFEVL53L1X()
+{
+	delete (VL53L1X *)_device;
+}
 
 bool SFEVL53L1X::init()
 {
@@ -66,18 +70,7 @@ bool SFEVL53L1X::begin(TwoWire &i2cPort)
 	_i2cPort = &i2cPort;
 	_device->dev_i2c = &i2cPort;
 
-	if (checkID() == false)
-	{
-		Serial.println("Check ID failed...");
-		return (VL53L1_ERROR_PLATFORM_SPECIFIC_START);
-	}
-
-	bool result = _device->VL53L1X_SensorInit() == 0;
-
-	if (!result)
-		Serial.println("Init failed...");
-
-	return result;
+	return begin();
 }
 
 /*Checks the ID of the device, returns true if ID is correct*/

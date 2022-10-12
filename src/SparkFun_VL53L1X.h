@@ -62,6 +62,7 @@ class SFEVL53L1X
 	//Constructs our Distance sensor
 	SFEVL53L1X(); // Default to Wire. Set both pins to -1 (undefined).
 	SFEVL53L1X(TwoWire &i2cPort, int shutdownPin = -1, int interruptPin = -1);
+	~SFEVL53L1X();
 	bool init(); //Deprecated version of begin
 	bool begin(); //Initialization of sensor
 	bool begin(TwoWire &i2cPort); //Initialization of sensor
