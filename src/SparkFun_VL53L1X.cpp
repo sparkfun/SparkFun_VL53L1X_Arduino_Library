@@ -40,20 +40,6 @@ SFEVL53L1X::SFEVL53L1X()
 	_interruptPin = -1;
 	_device = new VL53L1X(&Wire, -1, -1);
 }
-SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort)
-{
-	_i2cPort = &i2cPort;
-	_shutdownPin = -1;
-	_interruptPin = -1;
-	_device = new VL53L1X(&i2cPort, -1, -1);
-}
-SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin)
-{
-	_i2cPort = &i2cPort;
-	_shutdownPin = shutdownPin;
-	_interruptPin = -1;
-	_device = new VL53L1X(&i2cPort, shutdownPin, -1);
-}
 SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin, int interruptPin)
 {
 	_i2cPort = &i2cPort;
