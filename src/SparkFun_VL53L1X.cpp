@@ -33,6 +33,27 @@
 #include <stdlib.h>
 #include "SparkFun_VL53L1X.h"
 
+SFEVL53L1X::SFEVL53L1X()
+{
+	_i2cPort = &Wire;
+	_shutdownPin = -1;
+	_interruptPin = -1;
+	_device = new VL53L1X(&Wire, -1, -1);
+}
+SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort)
+{
+	_i2cPort = &i2cPort;
+	_shutdownPin = -1;
+	_interruptPin = -1;
+	_device = new VL53L1X(&i2cPort, -1, -1);
+}
+SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin)
+{
+	_i2cPort = &i2cPort;
+	_shutdownPin = shutdownPin;
+	_interruptPin = -1;
+	_device = new VL53L1X(&i2cPort, shutdownPin, -1);
+}
 SFEVL53L1X::SFEVL53L1X(TwoWire &i2cPort, int shutdownPin, int interruptPin)
 {
 	_i2cPort = &i2cPort;
@@ -52,6 +73,25 @@ bool SFEVL53L1X::begin()
 		return (VL53L1_ERROR_PLATFORM_SPECIFIC_START);
 
 	return _device->VL53L1X_SensorInit();
+}
+
+bool SFEVL53L1X::begin(TwoWire &i2cPort)
+{
+	_i2cPort = &i2cPort;
+	_device->dev_i2c = &i2cPort;
+
+	if (checkID() == false)
+	{
+		Serial.println("Check ID failed...");
+		return (VL53L1_ERROR_PLATFORM_SPECIFIC_START);
+	}
+
+	bool result = _device->VL53L1X_SensorInit() == 0;
+
+	if (!result)
+		Serial.println("Init failed...");
+
+	return result;
 }
 
 /*Checks the ID of the device, returns true if ID is correct*/
