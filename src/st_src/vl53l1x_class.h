@@ -553,10 +553,13 @@ class VL53L1X : public RangeSensor
 	
 	
 
- protected:
+ public:
 
     /* IO Device */
     TwoWire *dev_i2c;
+
+ protected:
+
     /* Digital out pin */
 	int gpio0;
 	int gpio1Int;

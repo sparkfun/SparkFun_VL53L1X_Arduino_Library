@@ -59,9 +59,13 @@ struct DetectionConfig
 class SFEVL53L1X
 {
 	public:
-	SFEVL53L1X(TwoWire &i2cPort = Wire, int shutdownPin = -1, int interruptPin = -1); //Constructs our Distance sensor without an interrupt or shutdown pin
+	//Constructs our Distance sensor
+	SFEVL53L1X(); // Default to Wire. Set both pins to -1 (undefined).
+	SFEVL53L1X(TwoWire &i2cPort, int shutdownPin = -1, int interruptPin = -1);
+	~SFEVL53L1X();
 	bool init(); //Deprecated version of begin
 	bool begin(); //Initialization of sensor
+	bool begin(TwoWire &i2cPort); //Initialization of sensor
 	bool checkID(); //Check the ID of the sensor, returns true if ID is correct
 	void sensorOn(); //Toggles shutdown pin to turn sensor on and off
     void sensorOff(); //Toggles shutdown pin to turn sensor on and off
