@@ -72,7 +72,7 @@ void setup(void)
     while (1)
       ;
   }
-  Serial.println("Sensor online!");
+  Serial.println("VL53L1X Sensor online!");
 
   // Short mode max distance is limited to 1.3 m but has a better ambient immunity.
   // Above 1.3 meter error 4 is thrown (wrap around).
@@ -83,6 +83,7 @@ void setup(void)
   int tLowDistanceCount = 0;
   while (tLowDistanceCount < 20)
   {
+    distanceSensor.startRanging();
     while (!distanceSensor.checkForDataReady())
     {
       delay(1);
