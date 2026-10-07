@@ -1,151 +1,200 @@
-/*
-  This is a library written for the VL53L1X I2C Distance sensor.
-
-  Written by Andy England @ SparkFun Electronics, October 17th, 2017
-
-  The sensor uses I2C to communicate, as well as a single (optional)
-  interrupt line that is not currently supported in this driver.
-
-  https://github.com/sparkfun/SparkFun_VL53L1X_Arduino_Library
-
-  Do you like this library? Help support SparkFun. Buy a board!
-
-  Development environment specifics:
-  Arduino IDE 1.8.1
-
-	==== MIT License ====	
-	Copyright © 2022 SparkFun Electronics
-
-	Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-	software and associated documentation files (the “Software”), to deal in the Software without restriction, 
-	including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-	and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-	The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE 
-	WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
-	OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-	=====================	
-*/
+/**
+ * @file SparkFun_VL53L1X.h
+ * @brief Arduino-specific implementation for the SparkFun VL53L1X 4m Laser Distance Sensor.
+ *
+ * @details
+ * This file provides the Arduino-specific implementation of the VL53L1X driver class.
+ * The SFEVL53L1X class inherits from sfDevVL53L1X and implements the I2C communication
+ * interface using Arduino's Wire library via the SparkFun Toolkit, as well as the optional
+ * shutdown pin.
+ *
+ * Originally written by Andy England @ SparkFun Electronics, October 17th, 2017
+ *
+ * @section Class SFEVL53L1X Class
+ * - begin(): Initializes I2C communication and the sensor
+ * - isConnected(): Verifies sensor connection
+ * - sensorOn()/sensorOff(): Drives the (optional) shutdown pin
+ *
+ * @section Dependencies Dependencies
+ * - Arduino.h
+ * - SparkFun_Toolkit.h
+ * - sfDevVL53L1X.h
+ *
+ * @author SparkFun Electronics
+ * @date 2017-2026
+ * @copyright Copyright (c) 2017-2026, SparkFun Electronics Inc. All rights reserved.
+ *
+ * @section License License
+ * SPDX-License-Identifier: MIT
+ *
+ * @section Product_Links Product Links
+ * - SEN-14722: https://www.sparkfun.com/products/14722
+ * - SEN-18993: https://www.sparkfun.com/products/18993
+ *
+ * @see https://github.com/sparkfun/SparkFun_VL53L1X_Arduino_Library
+ */
 
 #pragma once
 
-#include "Arduino.h"
-#include "Wire.h"
-#include "st_src/RangeSensor.h"
-#include "st_src/vl53l1_error_codes.h"
-#include "st_src/vl53l1x_class.h"
-#include "st_src/ComponentObject.h"
-#include "st_src/RangeSensor.h"
+// clang-format off
+#include <SparkFun_Toolkit.h>
+#include "sfTk/sfDevVL53L1X.h"
+#include <Arduino.h>
+// clang-format on
 
-#define DISTANCE_SHORT 	1
-#define DISTANCE_LONG 	2
-#define WINDOW_BELOW	0
-#define WINDOW_ABOVE	1
-#define WINDOW_OUT		2
-#define WINDOW_IN		3
-
-struct DetectionConfig
+/**
+ * @class SFEVL53L1X
+ * @brief Arduino I2C implementation for the VL53L1X distance sensor.
+ *
+ * Example usage:
+ * @code
+ * SFEVL53L1X distanceSensor;
+ * if (distanceSensor.begin() != 0) {
+ *     // Sensor failed to initialize
+ * }
+ * @endcode
+ *
+ * @note begin() returns 0 (ksfTkErrOk) on success, matching prior versions of this library.
+ *
+ * @see sfDevVL53L1X
+ * @see TwoWire
+ */
+class SFEVL53L1X : public sfDevVL53L1X
 {
-	uint16_t distanceMode = DISTANCE_SHORT;	// distance mode : DISTANCE_SHORT (0) or DISTANCE_LONG (1)
-	uint16_t windowMode = WINDOW_IN;		// window mode : WINDOW_BELOW (0), WINDOW_ABOVE (1), WINDOW_OUT (2), WINDOW_IN (3)
-	uint8_t IntOnNoTarget = 1;				// = 1 (No longer used - just use 1)
-	uint16_t thresholdHigh = 0;				// (in mm) :  the threshold above which one the device raises an interrupt if Window = 1
-	uint16_t thresholdLow = 0;				// (in mm) : the threshold under which one the device raises an interrupt if Window = 0
-};
+  public:
+    /**
+     * @brief Constructs our Distance sensor
+     *
+     * The I2C bus is not set up - begin() sets it up using the default port (Wire).
+     */
+    SFEVL53L1X() : _busIsSetup{false}, _shutdownPin{-1}, _interruptPin{-1}
+    {
+    }
 
-class SFEVL53L1X
-{
-	public:
-	//Constructs our Distance sensor
-	SFEVL53L1X(); // Default to Wire. Set both pins to -1 (undefined).
-	SFEVL53L1X(TwoWire &i2cPort, int shutdownPin = -1, int interruptPin = -1);
-	~SFEVL53L1X();
-	bool init(); //Deprecated version of begin
-	bool begin(); //Initialization of sensor
-	bool begin(TwoWire &i2cPort); //Initialization of sensor
-	bool checkID(); //Check the ID of the sensor, returns true if ID is correct
-	void sensorOn(); //Toggles shutdown pin to turn sensor on and off
-    void sensorOff(); //Toggles shutdown pin to turn sensor on and off
-	VL53L1X_Version_t getSoftwareVersion(); //Get's the current ST software version
-	void setI2CAddress(uint8_t addr); //Set the I2C address
-	int getI2CAddress(); //Get the I2C address
-	void clearInterrupt(); // Clear the interrupt flag
-	void setInterruptPolarityHigh(); //Set the polarity of an active interrupt to High
-	void setInterruptPolarityLow(); //Set the polarity of an active interrupt to Low
-	uint8_t getInterruptPolarity(); //get the current interrupt polarity
-	void startRanging(); //Begins taking measurements
-	void startOneshotRanging(); // Start one-shot ranging
-	void stopRanging(); //Stops taking measurements
-	bool checkForDataReady(); //Checks the to see if data is ready
-	void setTimingBudgetInMs(uint16_t timingBudget); //Set the timing budget for a measurement
-	uint16_t getTimingBudgetInMs(); //Get the timing budget for a measurement
-	void setDistanceModeLong(); //Set to 4M range
-	void setDistanceModeShort(); //Set to 1.3M range
-	uint8_t getDistanceMode(); //Get the distance mode, returns 1 for short and 2 for long
-	void setIntermeasurementPeriod(uint16_t intermeasurement); //Set time between measurements in ms
-	uint16_t getIntermeasurementPeriod(); //Get time between measurements in ms
-	bool checkBootState(); //Check if the VL53L1X has been initialized
-	uint16_t getSensorID(); //Get the sensor ID
-	uint16_t getDistance(); //Returns distance
-	uint16_t getSignalPerSpad(); //Returns the average signal rate per SPAD (The sensitive pads that detect light, the VL53L1X has a 16x16 array of these) in kcps/SPAD, or kilo counts per second per SPAD.
-	uint16_t getAmbientPerSpad(); //Returns the ambient noise when not measuring a signal in kcps/SPAD.
-	uint16_t getSignalRate(); //Returns the signal rate in kcps. All SPADs combined.
-	uint16_t getSpadNb(); //Returns the current number of enabled SPADs
-	uint16_t getAmbientRate(); // Returns the total ambinet rate in kcps. All SPADs combined.
-	uint8_t getRangeStatus(); //Returns the range status, which can be any of the following. 0 = no error, 1 = signal fail, 2 = sigma fail, 7 = wrapped target fail
-	void setOffset(int16_t offset); //Manually set an offset in mm
-	int16_t getOffset(); //Get the current offset in mm
-	void setXTalk(uint16_t xTalk); //Manually set the value of crosstalk in counts per second (cps), which is interference from any sort of window in front of your sensor.
-	uint16_t getXTalk(); //Returns the current crosstalk value in cps.
-	void setDistanceThreshold(uint16_t lowThresh, uint16_t hiThresh, uint8_t window);//Set bounds for the interrupt. lowThresh and hiThresh are the bounds of your interrupt while window decides when the interrupt should fire. The options for window are shown below.
-	//0: Interrupt triggered on measured distance below lowThresh.
-	//1: Interrupt triggered on measured distance above hiThresh.
-	//2: Interrupt triggered on measured distance outside of bounds.
-	//3: Interrupt triggered on measured distance inside of bounds.
-	uint16_t getDistanceThresholdWindow(); //Returns distance threshold window option
-	uint16_t getDistanceThresholdLow(); //Returns lower bound in mm.
-	uint16_t getDistanceThresholdHigh(); //Returns upper bound in mm
-	/**Table of Optical Centers**
-	*
-	* 128,136,144,152,160,168,176,184,  192,200,208,216,224,232,240,248
-	* 129,137,145,153,161,169,177,185,  193,201,209,217,225,233,241,249
-	* 130,138,146,154,162,170,178,186,  194,202,210,218,226,234,242,250
-	* 131,139,147,155,163,171,179,187,  195,203,211,219,227,235,243,251
-	* 132,140,148,156,164,172,180,188,  196,204,212,220,228,236,244,252
-	* 133,141,149,157,165,173,181,189,  197,205,213,221,229,237,245,253
-	* 134,142,150,158,166,174,182,190,  198,206,214,222,230,238,246,254
-	* 135,143,151,159,167,175,183,191,  199,207,215,223,231,239,247,255
-	
-	* 127,119,111,103, 95, 87, 79, 71,  63, 55, 47, 39, 31, 23, 15, 7
-	* 126,118,110,102, 94, 86, 78, 70,  62, 54, 46, 38, 30, 22, 14, 6
-	* 125,117,109,101, 93, 85, 77, 69,  61, 53, 45, 37, 29, 21, 13, 5
-	* 124,116,108,100, 92, 84, 76, 68,  60, 52, 44, 36, 28, 20, 12, 4
-	* 123,115,107, 99, 91, 83, 75, 67,  59, 51, 43, 35, 27, 19, 11, 3
-	* 122,114,106, 98, 90, 82, 74, 66,  58, 50, 42, 34, 26, 18, 10, 2
-	* 121,113,105, 97, 89, 81, 73, 65,  57, 49, 41, 33, 25, 17, 9, 1
-	* 120,112,104, 96, 88, 80, 72, 64,  56, 48, 40, 32, 24, 16, 8, 0 Pin 1
-	*
-	* To set the center, set the pad that is to the right and above the exact center of the region you'd like to measure as your opticalCenter*/
-	void setROI(uint8_t x, uint8_t y, uint8_t opticalCenter); //Set the height and width of the ROI(region of interest) in SPADs, lowest possible option is 4. Set optical center based on above table
-	uint16_t getROIX(); //Returns the width of the ROI in SPADs
-	uint16_t getROIY(); //Returns the height of the ROI in SPADs
-	void setSignalThreshold(uint16_t signalThreshold); //Programs the necessary threshold to trigger a measurement. Default is 1024 kcps.
-	uint16_t getSignalThreshold(); //Returns the signal threshold in kcps
-	void setSigmaThreshold(uint16_t sigmaThreshold); //Programs a new sigma threshold in mm. (default=15 mm)
-	uint16_t getSigmaThreshold(); //Returns the current sigma threshold.
-	void startTemperatureUpdate(); //Recalibrates the sensor for temperature changes. Run this any time the temperature has changed by more than 8°C
-	void calibrateOffset(uint16_t targetDistanceInMm); //Autocalibrate the offset by placing a target a known distance away from the sensor and passing this known distance into the function.
-	void calibrateXTalk(uint16_t targetDistanceInMm); //Autocalibrate the crosstalk by placing a target a known distance away from the sensor and passing this known distance into the function.
-	bool setThresholdConfig(DetectionConfig* config); //Sets threshold configuration struct
-	bool getThresholdConfig(DetectionConfig* config); //Gets current threshold settings. Returns false on error, true otherwise. Stores results in pointer to struct argument.
+    /**
+     * @brief Constructs our Distance sensor on the given I2C port
+     *
+     * @param i2cPort TwoWire instance to use for I2C communication
+     * @param shutdownPin Pin connected to the sensor's shutdown (XSHUT) pin, -1 if not connected
+     * @param interruptPin Pin connected to the sensor's interrupt (GPIO1) pin, -1 if not connected
+     */
+    SFEVL53L1X(TwoWire &i2cPort, int shutdownPin = -1, int interruptPin = -1)
+        : _busIsSetup{false}, _shutdownPin{shutdownPin}, _interruptPin{interruptPin}
+    {
+        // Setting up the bus only records the port and address - no I/O takes place here.
+        // It is done now so the sensor methods are usable before begin(), as in prior versions.
+        setupBus(i2cPort, kDefaultVL53L1XAddr);
 
-	private:
-	TwoWire *_i2cPort;
-	int _shutdownPin;
-	int _interruptPin;
-	int _i2cAddress = 0x52;
-	VL53L1X* _device;
+        if (_shutdownPin >= 0)
+            pinMode(_shutdownPin, OUTPUT);
+    }
+
+    /**
+     * @brief Initializes the VL53L1X sensor.
+     *
+     * Sets up the I2C bus on the default port (Wire) if it is not already set up, verifies the
+     * sensor is connected, then loads the default configuration.
+     *
+     * @return 0 (ksfTkErrOk) if successful, an error code otherwise.
+     */
+    sfTkError_t begin(void)
+    {
+        if (!_busIsSetup && !setupBus(Wire, kDefaultVL53L1XAddr))
+            return ksfTkErrBusNotInit;
+
+        if (!isConnected())
+            return ksfTkErrFail;
+
+        return sfDevVL53L1X::init();
+    }
+
+    /**
+     * @brief Initializes the VL53L1X sensor on the given I2C port.
+     *
+     * @param i2cPort TwoWire instance to use for I2C communication
+     *
+     * @return 0 (ksfTkErrOk) if successful, an error code otherwise.
+     */
+    sfTkError_t begin(TwoWire &i2cPort)
+    {
+        // The toolkit bus only accepts a port when it has none, so reset it first.
+        uint8_t address = _i2cBus.address();
+        _busIsSetup = false;
+        _i2cBus = sfTkArdI2C();
+        setupBus(i2cPort, address);
+
+        return begin();
+    }
+
+    /**
+     * @brief Checks if the VL53L1X sensor is connected and responding.
+     *
+     * @return true If the device responds to a ping and returns a correct sensor ID
+     * @return false If the bus is not set up, communication fails or the sensor ID is incorrect
+     */
+    bool isConnected(void)
+    {
+        if (!_busIsSetup)
+            return false;
+
+        if (_i2cBus.ping() != ksfTkErrOk)
+            return false;
+
+        return checkID();
+    }
+
+    /**
+     * @brief Turns the sensor on if the shutdown pin is connected
+     */
+    void sensorOn(void)
+    {
+        if (_shutdownPin >= 0)
+            digitalWrite(_shutdownPin, HIGH);
+
+        delay(10);
+    }
+
+    /**
+     * @brief Turns the sensor off if the shutdown pin is connected
+     */
+    void sensorOff(void)
+    {
+        if (_shutdownPin >= 0)
+            digitalWrite(_shutdownPin, LOW);
+
+        delay(10);
+    }
+
+  private:
+    /**
+     * @brief Configures the toolkit I2C bus and connects it to the driver
+     *
+     * @param i2cPort TwoWire instance to use for I2C communication
+     * @param address The 7-bit I2C address of the device
+     * @return true if the bus was set up, false otherwise
+     */
+    bool setupBus(TwoWire &i2cPort, uint8_t address)
+    {
+        _busIsSetup = false;
+
+        if (_i2cBus.init(i2cPort, address) != ksfTkErrOk)
+            return false;
+
+        // Device supports repeat starts, enable it.
+        _i2cBus.setStop(false);
+
+        setCommunicationBus(&_i2cBus);
+
+        _busIsSetup = true;
+        return true;
+    }
+
+    /** Arduino I2C bus interface instance for the VL53L1X sensor. */
+    sfTkArdI2C _i2cBus;
+
+    /** True once the I2C bus has been set up and connected to the driver. */
+    bool _busIsSetup;
+
+    int _shutdownPin;
+    int _interruptPin;
 };

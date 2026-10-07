@@ -37,7 +37,6 @@
 
 /* Includes */
 #include <stdlib.h>
-#include "Arduino.h"
 #include "vl53l1x_class.h"
 
 #define ALGO__PART_TO_PART_RANGE_OFFSET_MM 0x001E
@@ -158,7 +157,13 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SetI2CAddress(uint8_t new_address)
 	VL53L1X_ERROR status = 0;
 
 	status = VL53L1_WrByte(Device, VL53L1_I2C_SLAVE__DEVICE_ADDRESS, new_address >> 1);
+	if (status != VL53L1_ERROR_NONE)
+		return status;
+
 	Device->I2cDevAddr = new_address;
+
+	// The device now answers at the new address - move the bus to it (toolkit uses 7-bit addresses)
+	dev_i2c->setAddress(new_address >> 1);
 
 	return status;
 }
@@ -181,7 +186,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_SensorInit()
 		status = VL53L1X_CheckForDataReady(&dataReady);
 		if (timeout++ > 150)
 			return VL53L1_ERROR_TIME_OUT;
-		delay(1);
+		sftk_delay_ms(1);
 	}
 	status = VL53L1X_ClearInterrupt();
 	status = VL53L1X_StopRanging();
@@ -473,7 +478,7 @@ VL53L1X_ERROR VL53L1X::VL53L1X_GetInterMeasurementInMs(uint16_t *pIM)
 {
 	uint16_t ClockPLL;
 	VL53L1X_ERROR status = 0;
-	uint32_t tmp;
+	uint32_t tmp = 0;
 
 	status = VL53L1_RdDWord(Device, VL53L1_SYSTEM__INTERMEASUREMENT_PERIOD, &tmp);
 	*pIM = (uint16_t)tmp;
@@ -893,42 +898,47 @@ int8_t VL53L1X::VL53L1X_CalibrateXtalk(uint16_t TargetDistInMm, uint16_t *xtalk)
 
 VL53L1X_ERROR VL53L1X::VL53L1_WriteMulti(VL53L1_DEV Dev, uint16_t index, uint8_t *pdata, uint32_t count)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 
-	status = VL53L1_I2CWrite(Dev->I2cDevAddr, index, pdata, (uint16_t)count);
+	status = VL53L1_I2CWrite(index, pdata, (uint16_t)count);
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_ReadMulti(VL53L1_DEV Dev, uint16_t index, uint8_t *pdata, uint32_t count)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 
-	status = VL53L1_I2CRead(Dev->I2cDevAddr, index, pdata, (uint16_t)count);
+	status = VL53L1_I2CRead(index, pdata, (uint16_t)count);
 
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_WrByte(VL53L1_DEV Dev, uint16_t index, uint8_t data)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 
-	status = VL53L1_I2CWrite(Dev->I2cDevAddr, index, &data, 1);
+	status = VL53L1_I2CWrite(index, &data, 1);
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_WrWord(VL53L1_DEV Dev, uint16_t index, uint16_t data)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 	uint8_t buffer[2];
 
 	buffer[0] = data >> 8;
 	buffer[1] = data & 0x00FF;
-	status = VL53L1_I2CWrite(Dev->I2cDevAddr, index, (uint8_t *)buffer, 2);
+	status = VL53L1_I2CWrite(index, (uint8_t *)buffer, 2);
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_WrDWord(VL53L1_DEV Dev, uint16_t index, uint32_t data)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 	uint8_t buffer[4];
 
@@ -936,133 +946,111 @@ VL53L1X_ERROR VL53L1X::VL53L1_WrDWord(VL53L1_DEV Dev, uint16_t index, uint32_t d
 	buffer[1] = (data >> 16) & 0xFF;
 	buffer[2] = (data >> 8) & 0xFF;
 	buffer[3] = (data >> 0) & 0xFF;
-	status = VL53L1_I2CWrite(Dev->I2cDevAddr, index, (uint8_t *)buffer, 4);
+	status = VL53L1_I2CWrite(index, (uint8_t *)buffer, 4);
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_RdByte(VL53L1_DEV Dev, uint16_t index, uint8_t *data)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 
-	status = VL53L1_I2CRead(Dev->I2cDevAddr, index, data, 1);
+	status = VL53L1_I2CRead(index, data, 1);
 
 	if (status)
+	{
+		*data = 0;
 		return -1;
+	}
 
 	return 0;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_RdWord(VL53L1_DEV Dev, uint16_t index, uint16_t *data)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 	uint8_t buffer[2] = {0, 0};
 
-	status = VL53L1_I2CRead(Dev->I2cDevAddr, index, buffer, 2);
+	status = VL53L1_I2CRead(index, buffer, 2);
 	if (!status)
 	{
 		*data = (buffer[0] << 8) + buffer[1];
 	}
+	else
+		*data = 0;
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_RdDWord(VL53L1_DEV Dev, uint16_t index, uint32_t *data)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 	uint8_t buffer[4] = {0, 0, 0, 0};
 
-	status = VL53L1_I2CRead(Dev->I2cDevAddr, index, buffer, 4);
+	status = VL53L1_I2CRead(index, buffer, 4);
 	if (!status)
 	{
-		*data = (buffer[0] << 24) + (buffer[1] << 16U) + (buffer[2] << 8) + buffer[3];
+		*data = ((uint32_t)buffer[0] << 24) + ((uint32_t)buffer[1] << 16U) + ((uint32_t)buffer[2] << 8) + buffer[3];
 	}
+	else
+		*data = 0;
 	return status;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_UpdateByte(VL53L1_DEV Dev, uint16_t index, uint8_t AndData, uint8_t OrData)
 {
+	(void)Dev; // the bus holds the device address
 	int status;
 	uint8_t buffer = 0;
 
 	/* read data direct onto buffer */
-	status = VL53L1_I2CRead(Dev->I2cDevAddr, index, &buffer, 1);
+	status = VL53L1_I2CRead(index, &buffer, 1);
 	if (!status)
 	{
 		buffer = (buffer & AndData) | OrData;
-		status = VL53L1_I2CWrite(Dev->I2cDevAddr, index, &buffer, (uint16_t)1);
+		status = VL53L1_I2CWrite(index, &buffer, (uint16_t)1);
 	}
 	return status;
 }
 
-VL53L1X_ERROR VL53L1X::VL53L1_I2CWrite(uint8_t DeviceAddr, uint16_t RegisterAddr, uint8_t *pBuffer, uint16_t NumByteToWrite)
+VL53L1X_ERROR VL53L1X::VL53L1_I2CWrite(uint16_t RegisterAddr, uint8_t *pBuffer, uint16_t NumByteToWrite)
 {
-#ifdef DEBUG_MODE
-	Serial.print("Beginning transmission to ");
-	Serial.println(((DeviceAddr) >> 1) & 0x7F);
-#endif
-	dev_i2c->beginTransmission(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)));
-#ifdef DEBUG_MODE
-	Serial.print("Writing port number ");
-	Serial.println(RegisterAddr);
-#endif
-	uint8_t buffer[2];
-	buffer[0] = RegisterAddr >> 8;
-	buffer[1] = RegisterAddr & 0xFF;
-	dev_i2c->write(buffer, 2);
-	for (uint16_t i = 0; i < NumByteToWrite; i++)
-		dev_i2c->write(pBuffer[i]);
+	if (dev_i2c == nullptr)
+		return VL53L1_ERROR_CONTROL_INTERFACE;
 
-	dev_i2c->endTransmission(true);
-	return 0;
+	// 16-bit register address, sent MSB first
+	uint8_t regAddr[2] = {(uint8_t)(RegisterAddr >> 8), (uint8_t)(RegisterAddr & 0xFF)};
+
+	if (dev_i2c->writeRegister(regAddr, sizeof(regAddr), (const uint8_t *)pBuffer, (size_t)NumByteToWrite) != ksfTkErrOk)
+		return VL53L1_ERROR_CONTROL_INTERFACE;
+
+	return VL53L1_ERROR_NONE;
 }
 
-VL53L1X_ERROR VL53L1X::VL53L1_I2CRead(uint8_t DeviceAddr, uint16_t RegisterAddr, uint8_t *pBuffer, uint16_t NumByteToRead)
+VL53L1X_ERROR VL53L1X::VL53L1_I2CRead(uint16_t RegisterAddr, uint8_t *pBuffer, uint16_t NumByteToRead)
 {
-	int status = 0;
+	if (dev_i2c == nullptr)
+		return VL53L1_ERROR_CONTROL_INTERFACE;
 
-	//Loop until the port is transmitted correctly
-	uint8_t maxAttempts = 5;
+	// 16-bit register address, sent MSB first
+	uint8_t regAddr[2] = {(uint8_t)(RegisterAddr >> 8), (uint8_t)(RegisterAddr & 0xFF)};
+	size_t nRead = 0;
+	sfTkError_t status = ksfTkErrFail;
+
+	//Retry the transaction a few times before giving up
+	const uint8_t maxAttempts = 5;
 	for (uint8_t x = 0; x < maxAttempts; x++)
 	{
-#ifdef DEBUG_MODE
-		Serial.print("Beginning transmission to ");
-		Serial.println(((DeviceAddr) >> 1) & 0x7F);
-#endif
-		dev_i2c->beginTransmission(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)));
-#ifdef DEBUG_MODE
-		Serial.print("Writing port number ");
-		Serial.println(RegisterAddr);
-#endif
-		uint8_t buffer[2];
-		buffer[0] = RegisterAddr >> 8;
-		buffer[1] = RegisterAddr & 0xFF;
-		dev_i2c->write(buffer, 2);
-		status = dev_i2c->endTransmission(false);
-
-		if (status == 0)
+		status = dev_i2c->readRegister(regAddr, sizeof(regAddr), pBuffer, (size_t)NumByteToRead, nRead);
+		if (status == ksfTkErrOk)
 			break;
-
-//Fix for some STM32 boards
-//Reinitialize th i2c bus with the default parameters
-#ifdef ARDUINO_ARCH_STM32
-		if (status)
-		{
-			dev_i2c->end();
-			dev_i2c->begin();
-		}
-#endif
-		//End of fix
 	}
 
-	dev_i2c->requestFrom(((uint8_t)(((DeviceAddr) >> 1) & 0x7F)), (byte)NumByteToRead);
+	if (status != ksfTkErrOk || nRead != NumByteToRead)
+		return VL53L1_ERROR_CONTROL_INTERFACE;
 
-	int i = 0;
-	while (dev_i2c->available())
-	{
-		pBuffer[i] = dev_i2c->read();
-		i++;
-	}
-
-	return 0;
+	return VL53L1_ERROR_NONE;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_GetTickCount(
@@ -1071,25 +1059,22 @@ VL53L1X_ERROR VL53L1X::VL53L1_GetTickCount(
 
 	/* Returns current tick count in [ms] */
 
-	VL53L1X_ERROR status = VL53L1_ERROR_NONE;
+	*ptick_count_ms = sftk_ticks_ms();
 
-	//*ptick_count_ms = timeGetTime();
-	*ptick_count_ms = 0;
-
-	return status;
+	return VL53L1_ERROR_NONE;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_WaitUs(VL53L1_Dev_t *pdev, int32_t wait_us)
 {
 	(void)pdev;
-	delay(wait_us / 1000);
+	sftk_delay_us(wait_us);
 	return VL53L1_ERROR_NONE;
 }
 
 VL53L1X_ERROR VL53L1X::VL53L1_WaitMs(VL53L1_Dev_t *pdev, int32_t wait_ms)
 {
 	(void)pdev;
-	delay(wait_ms);
+	sftk_delay_ms(wait_ms);
 	return VL53L1_ERROR_NONE;
 }
 

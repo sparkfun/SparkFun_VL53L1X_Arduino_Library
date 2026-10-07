@@ -28,9 +28,16 @@ Buy a [breakout board](https://www.sparkfun.com/products/14722) from SparkFun!
 Repository Contents
 -------------------
 
-* **/Documents** - Datasheet and User Manual
-* **/Hardware** - Eagle design files (.brd, .sch)
-* **/Production** - .brd files
+* **/examples** - Example sketches for the library (.ino). Run these from the Arduino IDE.
+* **/src** - Source files for the library (.cpp, .h).
+  * **SparkFun_VL53L1X.h** - The Arduino interface (`SFEVL53L1X`)
+  * **/sfTk** - The platform independent driver (`sfDevVL53L1X`)
+    * **/st_src** - The STMicroelectronics VL53L1X ultra lite driver
+
+Dependencies
+------------
+
+This library uses the [SparkFun Toolkit](https://github.com/sparkfun/SparkFun_Toolkit) for all platform specific needs (I2C bus, delays and timing). The Arduino Library Manager installs it automatically; if installing manually, install the SparkFun Toolkit (v1.2.1 or later) as well.
 
 Documentation
 --------------
@@ -57,6 +64,6 @@ Please use, reuse, and modify these files as you see fit. Please maintain attrib
 
 Distributed as-is; no warranty is given.
 
-The source files included in the subfolder **st_src** are licensed differently. They are licensed under the BSD-3 license, check the License.md in
+The source files included in the subfolder **src/sfTk/st_src** are licensed differently. They are licensed under the BSD-3 license, check the License.md in
 that subfolder for specifics.
 - Your friends at SparkFun.

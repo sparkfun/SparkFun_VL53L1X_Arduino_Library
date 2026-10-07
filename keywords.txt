@@ -7,6 +7,8 @@
 #######################################
 
 SFEVL53L1X					KEYWORD1
+sfDevVL53L1X				KEYWORD1
+DetectionConfig				KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -14,6 +16,8 @@ SFEVL53L1X					KEYWORD1
 
 init						KEYWORD2
 begin						KEYWORD2
+isConnected					KEYWORD2
+setCommunicationBus			KEYWORD2
 checkID						KEYWORD2
 sensorOn					KEYWORD2
 sensorOff					KEYWORD2

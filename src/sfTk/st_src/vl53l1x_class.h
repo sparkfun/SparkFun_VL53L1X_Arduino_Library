@@ -42,8 +42,12 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "Arduino.h"
-#include "Wire.h"
+#include <stdint.h>
+
+// Platform specific needs (bus I/O, delays, ticks) are provided by the SparkFun Toolkit
+#include <sfTk/sfToolkit.h>
+#include <sfTk/sfTkII2C.h>
+
 #include "RangeSensor.h"
 #include "vl53l1_error_codes.h"
 
@@ -118,7 +122,6 @@ typedef struct {
 typedef struct {
 
 	uint8_t   I2cDevAddr;
-	TwoWire *I2cHandle;
 
 } VL53L1_Dev_t;
 
@@ -132,19 +135,13 @@ class VL53L1X : public RangeSensor
 {
  public:
     /** Constructor
-     * @param[in] &i2c device I2C to be used for communication
-     * @param[in] &pin_gpio1 pin Mbed InterruptIn PinName to be used as component GPIO_1 INT
-     * @param[in] DevAddr device address, 0x52 by default
+     * @param[in] i2c SparkFun Toolkit I2C bus to be used for communication. Can be set later via dev_i2c.
+     * @note The device address is tracked by the bus (7-bit). MyDevice.I2cDevAddr holds the ST 8-bit form.
      */
-    VL53L1X(TwoWire *i2c, int pin, int pin_gpio1) : RangeSensor(), dev_i2c(i2c), gpio0(pin), gpio1Int(pin_gpio1)
+    VL53L1X(sfTkII2C *i2c = nullptr) : RangeSensor(), dev_i2c(i2c)
     {
        MyDevice.I2cDevAddr=VL53L1X_DEFAULT_DEVICE_ADDRESS;
-       MyDevice.I2cHandle = i2c;
        Device = &MyDevice;
-       if(gpio0 >= 0)
-       {
-         pinMode(gpio0, OUTPUT);
-       }
     }
     
    /** Destructor
@@ -159,28 +156,20 @@ class VL53L1X : public RangeSensor
 	 * @brief       PowerOn the sensor
 	 * @return      void
 	 */
-    /* turns on the sensor */
+    /* turns on the sensor - shutdown pin control is platform specific; override to drive it */
     virtual void VL53L1_On(void)
     {
-       if(gpio0 >= 0)
-       {
-         digitalWrite(gpio0, HIGH);
-       }
-       delay(10);
+       sftk_delay_ms(10);
     }
 
 	/**
 	 * @brief       PowerOff the sensor
 	 * @return      void
 	 */
-    /* turns off the sensor */
+    /* turns off the sensor - shutdown pin control is platform specific; override to drive it */
     virtual void VL53L1_Off(void)
     {
-       if(gpio0 >= 0)
-       {
-         digitalWrite(gpio0, LOW);
-       }
-       delay(10);
+       sftk_delay_ms(10);
     }
 
 	/**
@@ -194,22 +183,10 @@ class VL53L1X : public RangeSensor
 		VL53L1_Off();
 		VL53L1_On();
 		status = VL53L1X_SetI2CAddress(address);
-		
-#ifdef DEBUG_MODE
-		uint8_t byteData;
-		uint16_t wordData;
-		status = VL53L1_RdByte(Device, 0x010F, &byteData);
-		Serial.println("VL53L1X Model_ID: " + String(byteData));
-		status = VL53L1_RdByte(Device, 0x0110, &byteData);
-		Serial.println("VL53L1X Module_Type: " + String(byteData));
-		status = VL53L1_RdWord(Device, 0x010F, &wordData);
-		Serial.println("VL53L1X: " + String(wordData));
-#endif
-		
-		
+
 		while (!sensorState && !status){
 			status = VL53L1X_BootState(&sensorState);
-			delay(2);
+			sftk_delay_ms(2);
 		}
 		if(!status){
 			status = VL53L1X_SensorInit();
@@ -543,8 +520,8 @@ class VL53L1X : public RangeSensor
     VL53L1X_ERROR VL53L1_WriteMulti(VL53L1_DEV Dev, uint16_t index, uint8_t *pdata, uint32_t count);
     VL53L1X_ERROR VL53L1_ReadMulti(VL53L1_DEV Dev, uint16_t index, uint8_t *pdata, uint32_t count);
 
-	VL53L1X_ERROR VL53L1_I2CWrite(uint8_t dev, uint16_t index, uint8_t *data, uint16_t number_of_bytes);
-	VL53L1X_ERROR VL53L1_I2CRead(uint8_t dev, uint16_t index, uint8_t *data, uint16_t number_of_bytes);
+	VL53L1X_ERROR VL53L1_I2CWrite(uint16_t index, uint8_t *data, uint16_t number_of_bytes);
+	VL53L1X_ERROR VL53L1_I2CRead(uint16_t index, uint8_t *data, uint16_t number_of_bytes);
 	VL53L1X_ERROR VL53L1_GetTickCount(uint32_t *ptick_count_ms);
 	VL53L1X_ERROR VL53L1_WaitUs(VL53L1_Dev_t *pdev, int32_t wait_us);
 	VL53L1X_ERROR VL53L1_WaitMs(VL53L1_Dev_t *pdev, int32_t wait_ms);
@@ -555,14 +532,11 @@ class VL53L1X : public RangeSensor
 
  public:
 
-    /* IO Device */
-    TwoWire *dev_i2c;
+    /* IO Device - SparkFun Toolkit I2C bus */
+    sfTkII2C *dev_i2c;
 
  protected:
 
-    /* Digital out pin */
-	int gpio0;
-	int gpio1Int;
     /* Device data */
 	VL53L1_Dev_t MyDevice;
 	VL53L1_DEV Device;

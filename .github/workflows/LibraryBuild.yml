@@ -28,7 +28,7 @@ jobs:
     env:
       # Comma separated list without double quotes around the list.
       PLATFORM_DEFAULT_URL: https://raw.githubusercontent.com/sparkfun/Arduino_Boards/master/IDE_Board_Manager/package_sparkfun_index.json
-      REQUIRED_LIBRARIES: EspSoftwareSerial
+      REQUIRED_LIBRARIES: EspSoftwareSerial,SparkFun Toolkit
 
     strategy:
       matrix:
